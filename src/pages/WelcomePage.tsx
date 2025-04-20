@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
@@ -37,7 +36,7 @@ const WelcomePage: React.FC = () => {
       </div>
       
       <div className="flex-grow flex flex-col items-center justify-center text-center p-6">
-        <img src="/placeholder.svg" alt="ASHASEVA Logo" className="w-24 h-24 mb-6" />
+        <img src="/ashaseva-logo.svg" alt="ASHASEVA Logo" className="w-24 h-24 mb-6" />
         <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">ASHASEVA</h1>
         <p className="text-xl md:text-2xl text-gray-700 mb-6 max-w-xl">
           {t(

@@ -24,7 +24,7 @@ const AppHeader: React.FC = () => {
           className="flex items-center gap-3 cursor-pointer" 
           onClick={() => navigate(currentUser?.role === "admin" ? "/admin-dashboard" : "/patient-dashboard")}
         >
-          <img src="/placeholder.svg" alt="ASHASEVA Logo" className="h-10 w-10" />
+          <img src="/ashaseva-logo.svg" alt="ASHASEVA Logo" className="h-10 w-10" />
           <h1 className="text-2xl font-bold text-primary">ASHASEVA</h1>
         </div>
         <div className="flex items-center gap-3">
