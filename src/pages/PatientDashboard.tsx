@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +15,7 @@ import AppointmentSection from "@/components/patient/AppointmentSection";
 import MedicineReminders from "@/components/patient/MedicineReminders";
 import EmergencyContacts from "@/components/patient/EmergencyContacts";
 import HealthTips from "@/components/patient/HealthTips";
+import ProfileCompletion from "@/components/patient/ProfileCompletion";
 
 const PatientDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -37,6 +37,12 @@ const PatientDashboard: React.FC = () => {
     language: language === "english" ? "en-IN" : "te-IN",
     autoSpeak: true,
   });
+
+  const isProfileComplete = currentUser && 
+    currentUser.name && 
+    currentUser.village && 
+    currentUser.healthCardNumber && 
+    currentUser.area;
 
   useEffect(() => {
     document.title = "ASHASEVA - Patient Dashboard";
@@ -90,6 +96,10 @@ const PatientDashboard: React.FC = () => {
   };
 
   if (!currentUser) return null;
+  
+  if (!isProfileComplete) {
+    return <ProfileCompletion />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
