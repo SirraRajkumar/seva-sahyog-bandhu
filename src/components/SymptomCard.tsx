@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Symptom } from "../types";
 import { useLanguage } from "../context/LanguageContext";
@@ -6,7 +7,7 @@ import {
   Pill,
   Droplets, 
   Bug, 
-  Lungs, // Corrected to 'Lungs'
+  Lungs, 
   Droplet
 } from "lucide-react";
 
