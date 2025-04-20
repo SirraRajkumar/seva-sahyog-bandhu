@@ -3,12 +3,12 @@ import React from "react";
 import { Symptom } from "../types";
 import { useLanguage } from "../context/LanguageContext";
 import { 
-  Thermometer, 
-  Pill,
-  Droplets, 
-  Bug, 
-  Stethoscope, // Replaced Lung with Stethoscope which is available in lucide-react
-  Droplet
+  Thermometer,
+  Wind,
+  Skull,
+  Stethoscope,
+  AlertCircle,
+  ThermometerSnowflake
 } from "lucide-react";
 
 interface SymptomCardProps {
@@ -24,27 +24,29 @@ const SymptomCard: React.FC<SymptomCardProps> = ({ symptom, onClick }) => {
       case 'thermometer':
         return <Thermometer size={48} className="text-red-500" />;
       case 'cough':
-        return <Droplets size={48} className="text-orange-500" />;
+        return <Wind size={48} className="text-blue-500" />; // Wind icon to represent cough/breath
       case 'head-cough':
-        return <Pill size={48} className="text-purple-500" />;
-      case 'virus':
-        return <Bug size={48} className="text-green-500" />;
-      case 'lungs':
-        return <Stethoscope size={48} className="text-blue-500" />; // Updated to use Stethoscope
+        return <Skull size={48} className="text-purple-500" />; // Skull to represent headache
       case 'head-cold':
-        return <Droplet size={48} className="text-cyan-500" />;
+        return <ThermometerSnowflake size={48} className="text-cyan-500" />; // Cold specific icon
+      case 'virus':
+        return <AlertCircle size={48} className="text-yellow-500" />; // Alert for stomach pain
+      case 'lungs':
+        return <Stethoscope size={48} className="text-green-500" />; // Breathing related
       default:
-        return <Bug size={48} className="text-gray-500" />;
+        return <AlertCircle size={48} className="text-gray-500" />;
     }
   };
 
   return (
     <button 
-      className="symptom-card w-full h-full"
+      className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 flex flex-col items-center justify-center gap-3 w-full h-full min-h-[160px]"
       onClick={onClick}
     >
-      <div className="mb-3">{getIcon()}</div>
-      <p className="text-lg font-medium text-gray-800">
+      <div className="p-3 bg-gray-50 rounded-full">
+        {getIcon()}
+      </div>
+      <p className="text-lg font-medium text-gray-800 text-center">
         {language === "english" ? symptom.name.english : symptom.name.telugu}
       </p>
     </button>
