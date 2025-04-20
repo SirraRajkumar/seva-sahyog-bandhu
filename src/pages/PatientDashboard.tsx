@@ -23,12 +23,6 @@ const PatientDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [selectedSymptom, setSelectedSymptom] = useState<string | null>(null);
-  const [duration, setDuration] = useState<number>(1);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [alreadySubmitted, setAlreadySubmitted] = useState<boolean>(false);
-  const [pastRequests, setPastRequests] = useState<any[]>([]);
-  
   const englishText = `Welcome ${currentUser?.name}. Please select a symptom you are experiencing, or view your past requests.`;
   const teluguText = `స్వాగతం ${currentUser?.name}. దయచేసి మీరు అనుభవిస్తున్న లక్షణాన్ని ఎంచుకోండి లేదా మీ గత అభ్యర్థనలను చూడండి.`;
   
@@ -61,30 +55,51 @@ const PatientDashboard: React.FC = () => {
     }
   }, [currentUser, navigate]);
 
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [duration, setDuration] = useState<number>(1);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState<boolean>(false);
+  const [pastRequests, setPastRequests] = useState<any[]>([]);
+
   const handleSymptomSelect = (symptomId: string) => {
-    setSelectedSymptom(symptomId);
-    setIsDialogOpen(true);
+    setSelectedSymptoms(prev => {
+      if (prev.includes(symptomId)) {
+        return prev.filter(id => id !== symptomId);
+      }
+      return [...prev, symptomId];
+    });
   };
 
-  const handleSubmitSymptom = () => {
-    if (!currentUser || !selectedSymptom) return;
+  const handleSubmitSymptoms = () => {
+    if (selectedSymptoms.length > 0) {
+      setIsDialogOpen(true);
+    }
+  };
+
+  const handleSubmitRequest = () => {
+    if (!currentUser || selectedSymptoms.length === 0) return;
     
-    const request = saveRequest({
-      userId: currentUser.id,
-      symptom: selectedSymptom,
-      duration: duration,
+    selectedSymptoms.forEach(symptomId => {
+      const request = saveRequest({
+        userId: currentUser.id,
+        symptom: symptomId,
+        duration: duration,
+      });
+      setPastRequests(prev => [...prev, request]);
     });
     
     setAlreadySubmitted(true);
-    setPastRequests([...pastRequests, request]);
     setIsDialogOpen(false);
     
     toast({
       title: t("Request Submitted", "అభ్యర్థన సమర్పించబడింది"),
-      description: t("Your health request has been sent to your ASHA worker", "మీ ఆరోగ్య అభ్యర్థన మీ ASHA కార్యకర్తకు పంపబడింది"),
+      description: t(
+        `Your health request with ${selectedSymptoms.length} symptoms has been sent to your ASHA worker`,
+        `${selectedSymptoms.length} లక్షణాలతో మీ ఆరోగ్య అభ్యర్థన మీ ASHA కార్యకర్తకు పంపబడింది`
+      ),
     });
     
-    setSelectedSymptom(null);
+    setSelectedSymptoms([]);
     setDuration(1);
   };
 
@@ -118,7 +133,9 @@ const PatientDashboard: React.FC = () => {
             {!alreadySubmitted && (
               <SubmitRequestSection
                 symptoms={symptoms}
+                selectedSymptoms={selectedSymptoms}
                 onSymptomSelect={handleSymptomSelect}
+                onSubmit={handleSubmitSymptoms}
               />
             )}
             <HealthTimeline userId={currentUser?.id || ""} />
@@ -137,7 +154,7 @@ const PatientDashboard: React.FC = () => {
           onOpenChange={setIsDialogOpen}
           duration={duration}
           onDurationChange={(values) => setDuration(values[0])}
-          onSubmit={handleSubmitSymptom}
+          onSubmit={handleSubmitRequest}
         />
       </main>
     </div>
