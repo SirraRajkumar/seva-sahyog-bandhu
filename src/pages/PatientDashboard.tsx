@@ -10,7 +10,12 @@ import { useToast } from "@/components/ui/use-toast";
 import WelcomeHeader from "@/components/patient/WelcomeHeader";
 import SubmitRequestSection from "@/components/patient/SubmitRequestSection";
 import HealthRequestDialog from "@/components/patient/HealthRequestDialog";
-import PastRequestsTable from "@/components/patient/PastRequestsTable";
+import HealthTimeline from "@/components/patient/HealthTimeline";
+import HealthStats from "@/components/patient/HealthStats";
+import AppointmentSection from "@/components/patient/AppointmentSection";
+import MedicineReminders from "@/components/patient/MedicineReminders";
+import EmergencyContacts from "@/components/patient/EmergencyContacts";
+import HealthTips from "@/components/patient/HealthTips";
 
 const PatientDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -90,34 +95,41 @@ const PatientDashboard: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <AppHeader />
       
-      <main className="flex-grow container mx-auto p-4 md:p-6">
+      <main className="flex-grow container mx-auto p-4 md:p-6 space-y-6">
         <WelcomeHeader 
-          name={currentUser.name}
+          name={currentUser?.name || ""}
           alreadySubmitted={alreadySubmitted}
         />
         
-        {!alreadySubmitted && (
-          <SubmitRequestSection
-            symptoms={symptoms}
-            onSymptomSelect={handleSymptomSelect}
-          />
-        )}
+        <HealthStats userId={currentUser?.id || ""} />
         
-        {pastRequests.length > 0 && (
-          <PastRequestsTable
-            requests={pastRequests}
-            getSymptomName={getSymptomName}
-          />
-        )}
-      </main>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {!alreadySubmitted && (
+              <SubmitRequestSection
+                symptoms={symptoms}
+                onSymptomSelect={handleSymptomSelect}
+              />
+            )}
+            <HealthTimeline userId={currentUser?.id || ""} />
+            <EmergencyContacts />
+          </div>
+          
+          <div className="space-y-6">
+            <AppointmentSection />
+            <MedicineReminders />
+            <HealthTips />
+          </div>
+        </div>
 
-      <HealthRequestDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        duration={duration}
-        onDurationChange={(values) => setDuration(values[0])}
-        onSubmit={handleSubmitSymptom}
-      />
+        <HealthRequestDialog
+          isOpen={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          duration={duration}
+          onDurationChange={(values) => setDuration(values[0])}
+          onSubmit={handleSubmitSymptom}
+        />
+      </main>
     </div>
   );
 };
