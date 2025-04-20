@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Symptom } from "../types";
 import { useLanguage } from "../context/LanguageContext";
@@ -6,7 +7,7 @@ import {
   Pill,
   Droplets, 
   Bug, 
-  Lung, // Changed from 'Lungs' to 'Lung'
+  Lungs, // Corrected from 'Lung' to 'Lungs'
   Droplet
 } from "lucide-react";
 
@@ -29,7 +30,7 @@ const SymptomCard: React.FC<SymptomCardProps> = ({ symptom, onClick }) => {
       case 'virus':
         return <Bug size={48} className="text-green-500" />;
       case 'lungs':
-        return <Lung size={48} className="text-blue-500" />;
+        return <Lungs size={48} className="text-blue-500" />; // Updated to use 'Lungs'
       case 'head-cold':
         return <Droplet size={48} className="text-cyan-500" />;
       default:
