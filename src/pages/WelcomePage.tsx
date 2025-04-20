@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
@@ -6,9 +7,11 @@ import LanguageToggle from "../components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { User, Book } from "lucide-react";
 import SpeechToggle from "../components/SpeechToggle";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const WelcomePage: React.FC = () => {
   const { t, language } = useLanguage();
+  const isMobile = useIsMobile();
   
   const englishText = "Welcome to ASHASEVA, your rural healthcare companion. Are you a patient or a healthcare worker?";
   const teluguText = "ASHASEVA కి స్వాగతం, మీ గ్రామీణ ఆరోగ్య సహచరి. మీరు రోగి లేదా ఆరోగ్య కార్యకర్త?";
@@ -35,25 +38,25 @@ const WelcomePage: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex-grow flex flex-col items-center justify-center text-center p-6">
+      <div className="flex-grow flex flex-col items-center justify-center text-center p-4 md:p-6">
         <img src="/ashaseva-logo.svg" alt="ASHASEVA Logo" className="w-24 h-24 mb-6" />
-        <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">ASHASEVA</h1>
-        <p className="text-xl md:text-2xl text-gray-700 mb-6 max-w-xl">
+        <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4">ASHASEVA</h1>
+        <p className="text-lg md:text-2xl text-gray-700 mb-6 max-w-xl">
           {t(
             "Your Rural Healthcare Companion", 
             "మీ గ్రామీణ ఆరోగ్య సహచరి"
           )}
         </p>
         
-        <div className="w-full max-w-md space-y-4 mt-8">
-          <Link to="/patient-login">
+        <div className={`w-full ${isMobile ? 'max-w-xs' : 'max-w-md'} space-y-4 mt-8`}>
+          <Link to="/patient-login" className="block w-full">
             <Button className="btn-large w-full bg-primary hover:bg-primary/90">
               <User className="mr-2" />
               {t("I am a Patient", "నేను ఒక రోగిని")}
             </Button>
           </Link>
           
-          <Link to="/admin-login">
+          <Link to="/admin-login" className="block w-full">
             <Button className="btn-large w-full bg-secondary hover:bg-secondary/90">
               <Book className="mr-2" />
               {t("I am an ASHA Worker", "నేను ASHA కార్యకర్తను")}
