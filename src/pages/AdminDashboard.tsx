@@ -37,7 +37,7 @@ const AdminDashboard: React.FC = () => {
   const [patientRequests, setPatientRequests] = useState<HealthRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredPatients, setFilteredPatients] = useState<User[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   
   const englishText = `Welcome ${currentUser?.name}. You can view all patients in your area and their health requests.`;
   const teluguText = `స్వాగతం ${currentUser?.name}. మీరు మీ ప్రాంతంలోని అన్ని రోగులను మరియు వారి ఆరోగ్య అభ్యర్థనలను చూడవచ్చు.`;
@@ -107,7 +107,7 @@ const AdminDashboard: React.FC = () => {
       });
       
       // Close the dialog
-      setIsDialogOpen(false);
+      setSelectedRequestId(null);
     }
   };
   
@@ -127,7 +127,7 @@ const AdminDashboard: React.FC = () => {
       });
       
       // Close the dialog
-      setIsDialogOpen(false);
+      setSelectedRequestId(null);
     }
   };
 
@@ -266,7 +266,7 @@ const AdminDashboard: React.FC = () => {
                                       {getStatusBadge(request.status)}
                                     </div>
                                   </div>
-                                  <Dialog open={isDialogOpen === request.id} onOpenChange={(open) => setIsDialogOpen(open ? request.id : false)}>
+                                  <Dialog open={selectedRequestId === request.id} onOpenChange={(open) => setSelectedRequestId(open ? request.id : null)}>
                                     <DialogTrigger asChild>
                                       <Button size="sm" variant="outline">
                                         {t("View Details", "వివరాలను చూడండి")}
@@ -375,7 +375,7 @@ const AdminDashboard: React.FC = () => {
                                       {getStatusBadge(request.status)}
                                     </div>
                                   </div>
-                                  <Dialog open={isDialogOpen === request.id} onOpenChange={(open) => setIsDialogOpen(open ? request.id : false)}>
+                                  <Dialog open={selectedRequestId === request.id} onOpenChange={(open) => setSelectedRequestId(open ? request.id : null)}>
                                     <DialogTrigger asChild>
                                       <Button size="sm" variant="outline">
                                         {t("View Details", "వివరాలను చూడండి")}
@@ -484,7 +484,7 @@ const AdminDashboard: React.FC = () => {
                                       {getStatusBadge(request.status)}
                                     </div>
                                   </div>
-                                  <Dialog open={isDialogOpen === request.id} onOpenChange={(open) => setIsDialogOpen(open ? request.id : false)}>
+                                  <Dialog open={selectedRequestId === request.id} onOpenChange={(open) => setSelectedRequestId(open ? request.id : null)}>
                                     <DialogTrigger asChild>
                                       <Button size="sm" variant="outline">
                                         {t("View Details", "వివరాలను చూడండి")}
