@@ -40,15 +40,32 @@ const SymptomCard: React.FC<SymptomCardProps> = ({ symptom, onClick }) => {
 
   return (
     <button 
-      className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 flex flex-col items-center justify-center gap-3 w-full h-full min-h-[160px]"
+      className="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg transition-all duration-300 
+                hover:shadow-xl hover:scale-105 border border-gray-100 flex flex-col items-center justify-center 
+                gap-4 w-full h-full min-h-[200px]"
       onClick={onClick}
     >
-      <div className="p-3 bg-gray-50 rounded-full">
-        {getIcon()}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 
+                    group-hover:opacity-100 transition-opacity duration-300" />
+      
+      <div className="relative z-10 flex flex-col items-center gap-4">
+        <div className="p-4 bg-gradient-to-br from-gray-50 to-white rounded-full 
+                      shadow-inner group-hover:shadow-md transition-all duration-300">
+          {getIcon()}
+        </div>
+        
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-lg font-semibold text-gray-800 text-center transition-colors 
+                      group-hover:text-primary">
+            {language === "english" ? symptom.name.english : symptom.name.telugu}
+          </p>
+          
+          <p className="text-sm text-gray-500 opacity-0 group-hover:opacity-100 
+                      transition-all duration-300 text-center">
+            {language === "english" ? "Click to select" : "ఎంచుకోవడానికి క్లిక్ చేయండి"}
+          </p>
+        </div>
       </div>
-      <p className="text-lg font-medium text-gray-800 text-center">
-        {language === "english" ? symptom.name.english : symptom.name.telugu}
-      </p>
     </button>
   );
 };
