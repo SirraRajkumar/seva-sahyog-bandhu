@@ -4,11 +4,11 @@ import { Symptom } from "../types";
 import { useLanguage } from "../context/LanguageContext";
 import { 
   Thermometer, 
-  Cough, 
-  HeadCough, 
-  Virus, 
-  Lungs, 
-  HeadCold
+  Pill,
+  Droplets, 
+  Virus as VirusIcon, 
+  Lungs as LungsIcon, 
+  Droplet
 } from "lucide-react";
 
 interface SymptomCardProps {
@@ -24,17 +24,17 @@ const SymptomCard: React.FC<SymptomCardProps> = ({ symptom, onClick }) => {
       case 'thermometer':
         return <Thermometer size={48} className="text-red-500" />;
       case 'cough':
-        return <Cough size={48} className="text-orange-500" />;
+        return <Droplets size={48} className="text-orange-500" />;
       case 'head-cough':
-        return <HeadCough size={48} className="text-purple-500" />;
+        return <Pill size={48} className="text-purple-500" />;
       case 'virus':
-        return <Virus size={48} className="text-green-500" />;
+        return <VirusIcon size={48} className="text-green-500" />;
       case 'lungs':
-        return <Lungs size={48} className="text-blue-500" />;
+        return <LungsIcon size={48} className="text-blue-500" />;
       case 'head-cold':
-        return <HeadCold size={48} className="text-cyan-500" />;
+        return <Droplet size={48} className="text-cyan-500" />;
       default:
-        return <Virus size={48} className="text-gray-500" />;
+        return <VirusIcon size={48} className="text-gray-500" />;
     }
   };
 
