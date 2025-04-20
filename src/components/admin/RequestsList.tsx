@@ -14,7 +14,8 @@ import {
   DialogFooter,
   DialogClose 
 } from "@/components/ui/dialog";
-import { findPatientsByArea } from "@/data/mockData";
+import { findPatientsByArea, updateRequestStatus } from "@/data/mockData";
+import { useToast } from "@/hooks/use-toast";
 
 interface Request {
   id: string;
@@ -27,26 +28,9 @@ interface Request {
 
 const RequestsList = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">{t("Pending", "పెండింగ్")}</Badge>;
-      case "urgent":
-        return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">{t("Urgent", "అత్యవసర")}</Badge>;
-      case "completed":
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">{t("Completed", "పూర్తయింది")}</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const handleViewDetails = (request: Request) => {
-    setSelectedRequest(request);
-  };
-
-  const requests: Request[] = [
+  const [requests, setRequests] = useState<Request[]>([
     {
       id: "1",
       patientName: "Rajesh Kumar",
@@ -71,7 +55,50 @@ const RequestsList = () => {
       status: "completed",
       symptom: "Regular checkup"
     }
-  ];
+  ]);
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">{t("Pending", "పెండింగ్")}</Badge>;
+      case "urgent":
+        return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">{t("Urgent", "అత్యవసర")}</Badge>;
+      case "completed":
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">{t("Completed", "పూర్తయింది")}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const handleViewDetails = (request: Request) => {
+    setSelectedRequest(request);
+  };
+
+  const handleMarkAsCompleted = () => {
+    if (selectedRequest) {
+      // Update the status in the backend (mock data in this case)
+      updateRequestStatus(selectedRequest.id, "completed");
+      
+      // Update the local state
+      const updatedRequests = requests.map(req => 
+        req.id === selectedRequest.id ? { ...req, status: "completed" } : req
+      );
+      setRequests(updatedRequests);
+      
+      // Update the selected request
+      setSelectedRequest({ ...selectedRequest, status: "completed" });
+      
+      // Show a success toast
+      toast({
+        title: t("Request Completed", "అభ్యర్థన పూర్తయింది"),
+        description: t(
+          `${selectedRequest.patientName}'s request has been marked as completed.`,
+          `${selectedRequest.patientName} యొక్క అభ్యర్థన పూర్తి చేసినట్లు గుర్తించబడింది.`
+        ),
+        variant: "default",
+      });
+    }
+  };
 
   return (
     <Card>
@@ -180,7 +207,7 @@ const RequestsList = () => {
               </DialogClose>
 
               {selectedRequest && selectedRequest.status !== "completed" && (
-                <Button>
+                <Button onClick={handleMarkAsCompleted}>
                   {t("Mark as Completed", "పూర్తి చేసినట్లు గుర్తించండి")}
                 </Button>
               )}
