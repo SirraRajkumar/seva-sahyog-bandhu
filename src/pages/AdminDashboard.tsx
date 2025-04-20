@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
-import { findRequestsByArea, findPatientsByArea, findUserByPhone, users } from "../data/mockData";
+import { findRequestsByArea, findPatientsByArea, findUserByPhone, users, updateRequestStatus } from "../data/mockData";
 import AppHeader from "../components/AppHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -22,11 +23,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { HealthRequest, User } from "../types";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const [requests, setRequests] = useState<HealthRequest[]>([]);
   const [patients, setPatients] = useState<User[]>([]);
@@ -34,6 +37,7 @@ const AdminDashboard: React.FC = () => {
   const [patientRequests, setPatientRequests] = useState<HealthRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredPatients, setFilteredPatients] = useState<User[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   
   const englishText = `Welcome ${currentUser?.name}. You can view all patients in your area and their health requests.`;
   const teluguText = `స్వాగతం ${currentUser?.name}. మీరు మీ ప్రాంతంలోని అన్ని రోగులను మరియు వారి ఆరోగ్య అభ్యర్థనలను చూడవచ్చు.`;
@@ -84,6 +88,46 @@ const AdminDashboard: React.FC = () => {
       setSelectedPatient(patient);
       const patientReqs = requests.filter(req => req.userId === patientId);
       setPatientRequests(patientReqs);
+    }
+  };
+  
+  const handleMarkAsReviewed = (requestId: string) => {
+    const updatedRequest = updateRequestStatus(requestId, "reviewed");
+    if (updatedRequest) {
+      // Update the local state with the updated request
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === requestId ? { ...req, status: "reviewed" } : req
+        )
+      );
+      
+      toast({
+        title: t("Request Updated", "అభ్యర్థన నవీకరించబడింది"),
+        description: t("Request marked as reviewed", "అభ్యర్థన సమీక్షించినట్లుగా గుర్తించబడింది"),
+      });
+      
+      // Close the dialog
+      setIsDialogOpen(false);
+    }
+  };
+  
+  const handleUpdateStatus = (requestId: string, newStatus: "pending" | "reviewed" | "urgent" | "completed") => {
+    const updatedRequest = updateRequestStatus(requestId, newStatus);
+    if (updatedRequest) {
+      // Update the local state with the updated request
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === requestId ? { ...req, status: newStatus } : req
+        )
+      );
+      
+      toast({
+        title: t("Request Updated", "అభ్యర్థన నవీకరించబడింది"),
+        description: t(`Status updated to ${newStatus}`, `స్థితి ${newStatus}గా నవీకరించబడింది`),
+      });
+      
+      // Close the dialog
+      setIsDialogOpen(false);
     }
   };
 
@@ -222,7 +266,7 @@ const AdminDashboard: React.FC = () => {
                                       {getStatusBadge(request.status)}
                                     </div>
                                   </div>
-                                  <Dialog>
+                                  <Dialog open={isDialogOpen === request.id} onOpenChange={(open) => setIsDialogOpen(open ? request.id : false)}>
                                     <DialogTrigger asChild>
                                       <Button size="sm" variant="outline">
                                         {t("View Details", "వివరాలను చూడండి")}
@@ -231,6 +275,9 @@ const AdminDashboard: React.FC = () => {
                                     <DialogContent>
                                       <DialogHeader>
                                         <DialogTitle>{t("Patient Details", "రోగి వివరాలు")}</DialogTitle>
+                                        <DialogDescription>
+                                          {t("View detailed information about this patient's request", "ఈ రోగి అభ్యర్థన గురించి వివరణాత్మక సమాచారాన్ని చూడండి")}
+                                        </DialogDescription>
                                       </DialogHeader>
                                       <div className="space-y-4">
                                         <div className="grid grid-cols-2 gap-2">
@@ -277,11 +324,18 @@ const AdminDashboard: React.FC = () => {
                                         </div>
                                       </div>
                                       <DialogFooter>
-                                        <Button variant="outline" size="sm">
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          onClick={() => handleMarkAsReviewed(request.id)}
+                                        >
                                           {t("Mark as Reviewed", "సమీక్షించినట్లుగా గుర్తించండి")}
                                         </Button>
-                                        <Button size="sm">
-                                          {t("Update Status", "స్థితిని నవీకరించండి")}
+                                        <Button 
+                                          size="sm"
+                                          onClick={() => handleUpdateStatus(request.id, "completed")}
+                                        >
+                                          {t("Mark as Completed", "పూర్తి అయినట్లుగా గుర్తించండి")}
                                         </Button>
                                       </DialogFooter>
                                     </DialogContent>
@@ -321,7 +375,7 @@ const AdminDashboard: React.FC = () => {
                                       {getStatusBadge(request.status)}
                                     </div>
                                   </div>
-                                  <Dialog>
+                                  <Dialog open={isDialogOpen === request.id} onOpenChange={(open) => setIsDialogOpen(open ? request.id : false)}>
                                     <DialogTrigger asChild>
                                       <Button size="sm" variant="outline">
                                         {t("View Details", "వివరాలను చూడండి")}
@@ -330,6 +384,9 @@ const AdminDashboard: React.FC = () => {
                                     <DialogContent>
                                       <DialogHeader>
                                         <DialogTitle>{t("Patient Details", "రోగి వివరాలు")}</DialogTitle>
+                                        <DialogDescription>
+                                          {t("View detailed information about this patient's request", "ఈ రోగి అభ్యర్థన గురించి వివరణాత్మక సమాచారాన్ని చూడండి")}
+                                        </DialogDescription>
                                       </DialogHeader>
                                       <div className="space-y-4">
                                         <div className="grid grid-cols-2 gap-2">
@@ -376,11 +433,18 @@ const AdminDashboard: React.FC = () => {
                                         </div>
                                       </div>
                                       <DialogFooter>
-                                        <Button variant="outline" size="sm">
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          onClick={() => handleMarkAsReviewed(request.id)}
+                                        >
                                           {t("Mark as Reviewed", "సమీక్షించినట్లుగా గుర్తించండి")}
                                         </Button>
-                                        <Button size="sm">
-                                          {t("Update Status", "స్థితిని నవీకరించండి")}
+                                        <Button 
+                                          size="sm"
+                                          onClick={() => handleUpdateStatus(request.id, "urgent")}
+                                        >
+                                          {t("Mark as Urgent", "అత్యవసరంగా గుర్తించండి")}
                                         </Button>
                                       </DialogFooter>
                                     </DialogContent>
@@ -420,7 +484,7 @@ const AdminDashboard: React.FC = () => {
                                       {getStatusBadge(request.status)}
                                     </div>
                                   </div>
-                                  <Dialog>
+                                  <Dialog open={isDialogOpen === request.id} onOpenChange={(open) => setIsDialogOpen(open ? request.id : false)}>
                                     <DialogTrigger asChild>
                                       <Button size="sm" variant="outline">
                                         {t("View Details", "వివరాలను చూడండి")}
@@ -429,6 +493,9 @@ const AdminDashboard: React.FC = () => {
                                     <DialogContent>
                                       <DialogHeader>
                                         <DialogTitle>{t("Patient Details", "రోగి వివరాలు")}</DialogTitle>
+                                        <DialogDescription>
+                                          {t("View detailed information about this patient's request", "ఈ రోగి అభ్యర్థన గురించి వివరణాత్మక సమాచారాన్ని చూడండి")}
+                                        </DialogDescription>
                                       </DialogHeader>
                                       <div className="space-y-4">
                                         <div className="grid grid-cols-2 gap-2">
@@ -475,9 +542,32 @@ const AdminDashboard: React.FC = () => {
                                         </div>
                                       </div>
                                       <DialogFooter>
-                                        <Button size="sm">
-                                          {t("Update Status", "స్థితిని నవీకరించండి")}
-                                        </Button>
+                                        {request.status === "reviewed" ? (
+                                          <>
+                                            <Button 
+                                              variant="outline" 
+                                              size="sm"
+                                              onClick={() => handleUpdateStatus(request.id, "urgent")}
+                                            >
+                                              {t("Mark as Urgent", "అత్యవసరంగా గుర్తించండి")}
+                                            </Button>
+                                            <Button 
+                                              size="sm"
+                                              onClick={() => handleUpdateStatus(request.id, "completed")}
+                                            >
+                                              {t("Mark as Completed", "పూర్తి అయినట్లుగా గుర్తించండి")}
+                                            </Button>
+                                          </>
+                                        ) : (
+                                          <Button 
+                                            size="sm"
+                                            onClick={() => handleUpdateStatus(request.id, request.status === "completed" ? "reviewed" : "completed")}
+                                          >
+                                            {request.status === "completed" 
+                                              ? t("Reopen Request", "అభ్యర్థనను మళ్లీ తెరవండి") 
+                                              : t("Update Status", "స్థితిని నవీకరించండి")}
+                                          </Button>
+                                        )}
                                       </DialogFooter>
                                     </DialogContent>
                                   </Dialog>
@@ -547,6 +637,9 @@ const AdminDashboard: React.FC = () => {
                         <DialogContent className="sm:max-w-[600px]">
                           <DialogHeader>
                             <DialogTitle>{t("Patient Information", "రోగి సమాచారం")}</DialogTitle>
+                            <DialogDescription>
+                              {t("View detailed information about this patient", "ఈ రోగి గురించి వివరణాత్మక సమాచారాన్ని చూడండి")}
+                            </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-6 py-4">
                             <div>

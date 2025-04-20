@@ -161,6 +161,15 @@ export function saveRequest(request: Omit<HealthRequest, "id" | "date" | "status
   return newRequest;
 }
 
+export function updateRequestStatus(requestId: string, newStatus: "pending" | "reviewed" | "urgent" | "completed"): HealthRequest | undefined {
+  const requestIndex = healthRequests.findIndex(req => req.id === requestId);
+  if (requestIndex !== -1) {
+    healthRequests[requestIndex].status = newStatus;
+    return healthRequests[requestIndex];
+  }
+  return undefined;
+}
+
 export function saveUser(user: Omit<User, "id" | "role">): User {
   const newUser = {
     ...user,
