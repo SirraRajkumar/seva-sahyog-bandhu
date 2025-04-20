@@ -3,7 +3,18 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Clock, CheckCircle } from "lucide-react";
+import { AlertCircle, Clock, CheckCircle, Eye } from "lucide-react";
+import { useState } from "react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose 
+} from "@/components/ui/dialog";
+import { findPatientsByArea } from "@/data/mockData";
 
 interface Request {
   id: string;
@@ -16,6 +27,7 @@ interface Request {
 
 const RequestsList = () => {
   const { t } = useLanguage();
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -28,6 +40,10 @@ const RequestsList = () => {
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const handleViewDetails = (request: Request) => {
+    setSelectedRequest(request);
   };
 
   const requests: Request[] = [
@@ -85,13 +101,92 @@ const RequestsList = () => {
                     {getStatusBadge(request.status)}
                   </div>
                 </div>
-                <Button size="sm" variant="outline">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleViewDetails(request)}
+                >
+                  <Eye className="mr-1 h-4 w-4" />
                   {t("View Details", "వివరాలను చూడండి")}
                 </Button>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Request Details Dialog */}
+        <Dialog open={selectedRequest !== null} onOpenChange={(open) => !open && setSelectedRequest(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t("Request Details", "అభ్యర్థన వివరాలు")}</DialogTitle>
+              <DialogDescription>
+                {selectedRequest && `${t("Submitted on", "సమర్పించిన తేదీ")}: ${selectedRequest.date}`}
+              </DialogDescription>
+            </DialogHeader>
+            
+            {selectedRequest && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">
+                      {t("Patient Name", "రోగి పేరు")}
+                    </h4>
+                    <p className="mt-1">{selectedRequest.patientName}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">
+                      {t("Village", "గ్రామం")}
+                    </h4>
+                    <p className="mt-1">{selectedRequest.village}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">
+                    {t("Reported Symptom", "నివేదించిన లక్షణం")}
+                  </h4>
+                  <p className="mt-1">{selectedRequest.symptom}</p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">
+                    {t("Status", "స్థితి")}
+                  </h4>
+                  <div className="mt-1">
+                    {getStatusBadge(selectedRequest.status)}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">
+                    {t("Recommended Action", "సిఫార్సు చేయబడిన చర్య")}
+                  </h4>
+                  <p className="mt-1">
+                    {selectedRequest.status === "urgent" 
+                      ? t("Immediate visit required", "తక్షణ సందర్శన అవసరం") 
+                      : selectedRequest.status === "pending"
+                      ? t("Schedule a follow-up", "ఫాలో-అప్ షెడ్యూల్ చేయండి")
+                      : t("No action required", "చర్య అవసరం లేదు")}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="sm:justify-between">
+              <DialogClose asChild>
+                <Button variant="outline">
+                  {t("Close", "మూసివేయండి")}
+                </Button>
+              </DialogClose>
+
+              {selectedRequest && selectedRequest.status !== "completed" && (
+                <Button>
+                  {t("Mark as Completed", "పూర్తి చేసినట్లు గుర్తించండి")}
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
