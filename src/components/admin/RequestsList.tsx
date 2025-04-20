@@ -81,12 +81,12 @@ const RequestsList = () => {
       
       // Update the local state
       const updatedRequests = requests.map(req => 
-        req.id === selectedRequest.id ? { ...req, status: "completed" } : req
+        req.id === selectedRequest.id ? { ...req, status: "completed" as const } : req
       );
       setRequests(updatedRequests);
       
       // Update the selected request
-      setSelectedRequest({ ...selectedRequest, status: "completed" });
+      setSelectedRequest({ ...selectedRequest, status: "completed" as const });
       
       // Show a success toast
       toast({
