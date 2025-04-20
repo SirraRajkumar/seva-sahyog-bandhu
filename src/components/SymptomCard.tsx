@@ -6,8 +6,8 @@ import {
   Thermometer, 
   Pill,
   Droplets, 
-  Virus as VirusIcon, 
-  Lungs as LungsIcon, 
+  Virus, 
+  LungsIcon, 
   Droplet
 } from "lucide-react";
 
@@ -28,13 +28,13 @@ const SymptomCard: React.FC<SymptomCardProps> = ({ symptom, onClick }) => {
       case 'head-cough':
         return <Pill size={48} className="text-purple-500" />;
       case 'virus':
-        return <VirusIcon size={48} className="text-green-500" />;
+        return <Virus size={48} className="text-green-500" />;
       case 'lungs':
         return <LungsIcon size={48} className="text-blue-500" />;
       case 'head-cold':
         return <Droplet size={48} className="text-cyan-500" />;
       default:
-        return <VirusIcon size={48} className="text-gray-500" />;
+        return <Virus size={48} className="text-gray-500" />;
     }
   };
 
