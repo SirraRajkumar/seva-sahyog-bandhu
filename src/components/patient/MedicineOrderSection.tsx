@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Package, MapPin, Plus, FileImage } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Package, MapPin, Plus, FileImage, FileText } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "../../context/AuthContext";
@@ -18,10 +19,11 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
   const { t } = useLanguage();
   const { toast } = useToast();
   const { currentUser } = useAuth();
-  
+
   const [address, setAddress] = useState<string>("");
   const [postalCode, setPostalCode] = useState<string>("");
   const [prescriptionImage, setPrescriptionImage] = useState<File | null>(null);
+  const [description, setDescription] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,26 +34,30 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!address || !postalCode || !prescriptionImage) {
+
+    // Patient must fill at least one of description or prescriptionImage
+    if (!address || !postalCode || (!prescriptionImage && !description.trim())) {
       toast({
         title: t("Missing Information", "సమాచారం లేదు"),
-        description: t("Please fill all required fields and upload prescription image", "దయచేసి అవసరమైన అన్ని ఫీల్డ్‌లను పూరించండి మరియు ప్రిస్క్రిప్షన్ ఇమేజ్‌ని అప్‌లోడ్ చేయండి"),
+        description: t(
+          "Please fill all required fields and provide a prescription (image or text)",
+          "దయచేసి అవసరమైన అన్ని ఫీల్డ్‌లు పూరించండి మరియు డాక్టర్ ప్రిస్క్రిప్షన్ (ఇమేజ్ లేదా టెక్స్ట్) ఇవ్వండి"
+        ),
         variant: "destructive",
       });
       return;
     }
-    
+
     setIsSubmitting(true);
 
-    // For demo, we just mock uploading and use a local URL
+    // Save only the description text (doctor can later update), not the image
     try {
       if (currentUser) {
         const order = saveMedicineOrder({
           userId: currentUser.id,
-          address: address,
-          postalCode: postalCode,
-          description: "", // Use empty description instead of prescriptionImageUrl
+          address,
+          postalCode,
+          description: description.trim(), // If blank, doctor can edit later
           status: "pending"
         });
         toast({
@@ -63,6 +69,7 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
         });
         setAddress("");
         setPostalCode("");
+        setDescription("");
         setPrescriptionImage(null);
         onOrderPlaced();
       }
@@ -76,7 +83,7 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <Card>
       <CardHeader>
@@ -112,19 +119,36 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
               onChange={(e) => setAddress(e.target.value)}
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">
+              <span className="flex items-center gap-1">
+                <FileText className="h-5 w-5 text-gray-500" />
+                {t("Prescription (text from doctor or symptoms/notes)", "డాక్టర్ ఇచ్చిన మందులు లేదా లక్షణాలు/గమనింపులు (టెక్స్ట్)")}
+              </span>
+            </Label>
+            <Textarea
+              id="description"
+              placeholder={t("List doctor-prescribed medicines, or describe your symptoms, or leave blank for doctor to fill...", "డాక్టర్ సూచించిన మందుల జాబితాను లేదా మీ లక్షణాలను నమోదు చేయండి. లేకపోతే డాక్టర్ నింపుతుంది...")}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="prescriptionImage">
-              {t("Upload Doctor Prescription", "డాక్టర్ ప్రిస్క్రిప్షన్‌ను అప్‌లోడ్ చేయండి")}
+              <span className="flex items-center gap-1">
+                <FileImage className="h-5 w-5 text-gray-500" />
+                {t("Upload Doctor Prescription (optional)", "డాక్టర్ ప్రిస్క్రిప్షన్‌ను అప్‌లోడ్ చేయండి (ఐచ్ఛికం)")}
+              </span>
             </Label>
-            <div className="flex items-center gap-2">
-              <FileImage className="h-5 w-5 text-gray-500" />
-              <Input
-                id="prescriptionImage"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-            </div>
+            <Input
+              id="prescriptionImage"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
             {prescriptionImage && (
               <div className="mt-2">
                 <img
@@ -134,10 +158,14 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
                 />
               </div>
             )}
+            <p className="text-xs text-muted-foreground">
+              {t("You can upload a prescription image or fill in the text above. At least one is required.", "మీరు ప్రిస్క్రిప్షన్ ఇమేజ్‌ని అప్‌లోడ్ చేయవచ్చు లేదా పై టెక్స్ట్ నింపవచ్చు. కనీసం ఒకటి తప్పనిసరి.")}
+            </p>
           </div>
-          <Button 
-            type="submit" 
-            className="w-full" 
+
+          <Button
+            type="submit"
+            className="w-full"
             disabled={isSubmitting}
           >
             <Plus className="mr-2 h-4 w-4" />
