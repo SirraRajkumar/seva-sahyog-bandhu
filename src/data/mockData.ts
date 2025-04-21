@@ -1,52 +1,59 @@
 import { User, HealthRequest, Symptom, MedicineOrder } from "../types";
 
 export const users: User[] = [
+  // === DEFAULT LOGIN DETAILS ===
+  // Patient: ID = p1, Phone = 9876543210
   {
     id: "p1",
     name: "Rajesh Kumar",
     phone: "9876543210",
     village: "Narayanpur",
-    area: "AP001",
+    area: "", // area removed, kept empty for compatibility
     role: "patient"
   },
+  // Patient: ID = p2, Phone = 9876543211
   {
     id: "p2",
     name: "Sita Devi",
     phone: "9876543211",
     village: "Gollapudi",
-    area: "AP001",
+    area: "",
     role: "patient"
   },
+  // Patient: ID = p3, Phone = 9876543212
   {
     id: "p3",
     name: "Mohan Rao",
     phone: "9876543212",
     village: "Jangareddygudem",
-    area: "AP002",
+    area: "",
     role: "patient"
   },
+  // Delivery Partner: ID = a1, Phone = 9876543213
   {
     id: "a1",
     name: "Lakshmi Reddy",
     phone: "9876543213",
     village: "Vijayawada",
-    area: "AP001",
+    area: "",
     role: "admin"
   },
+  // Delivery Partner: ID = a2, Phone = 9876543214
   {
     id: "a2",
     name: "Priya Sharma",
     phone: "9876543214",
     village: "Rajahmundry",
-    area: "AP002",
+    area: "",
     role: "admin"
   },
+  // Doctor: ID = d1, Phone = 9876543215
   {
     id: "d1",
     name: "Dr. Suresh Kumar",
     phone: "9876543215",
     village: "Vijayawada",
-    area: "AP001",
+    area: "",
     role: "doctor"
   }
 ];
@@ -159,6 +166,15 @@ export const symptoms: Symptom[] = [
   }
 ];
 
+// Helper to generate unique patient ID
+function generatePatientId(): string {
+  const maxPID = users
+    .filter((user) => user.id.startsWith("p"))
+    .map((user) => parseInt(user.id.replace("p", ""), 10))
+    .reduce((max, n) => (Number.isNaN(n) ? max : Math.max(max, n)), 0);
+  return `p${maxPID + 1}`;
+}
+
 // User related functions
 export function findUserByIdentifier(identifier: string): User | undefined {
   // identifier can be phone or id
@@ -209,12 +225,14 @@ export function updateRequestStatus(requestId: string, newStatus: "pending" | "r
 }
 
 export function saveUser(user: Omit<User, "id" | "role">): User {
+  // Generate a unique patient ID
+  const newId = generatePatientId();
   const newUser = {
     ...user,
-    id: `p${users.length + 1}`,
+    id: newId,
+    area: "", // area always empty/removed for new users
     role: "patient"
   } as User;
-  
   users.push(newUser);
   return newUser;
 }

@@ -63,7 +63,7 @@ const PatientLogin: React.FC = () => {
         if (user.role === "patient") {
           toast({
             title: t("Login Successful", "లాగిన్ విజయవంతమైంది"),
-            description: t(`Welcome back, ${user.name}`, `తిరిగి స్వాగతం, ${user.name}`),
+            description: t(`Welcome back, ${user.name}. Your ID: ${user.id}`, `తిరిగి స్వాగతం, ${user.name}. మీ ID: ${user.id}`),
           });
           navigate("/patient-dashboard");
         } else {
@@ -95,7 +95,10 @@ const PatientLogin: React.FC = () => {
       const newUser = register({ name, phone: identifier, village, area: "" });
       toast({
         title: t("Registration Successful", "నమోదు విజయవంతమైంది"),
-        description: t(`Welcome, ${newUser.name}`, `స్వాగతం, ${newUser.name}`),
+        description: t(
+          `Welcome, ${newUser.name}! Your ID: ${newUser.id}. Please save this ID for login.`,
+          `స్వాగతం, ${newUser.name}! మీ ID: ${newUser.id}. దయచేసి లాగిన్ కోసం ఈ IDని భద్రపరచుకోండి.`
+        ),
       });
       navigate("/patient-dashboard");
     }
