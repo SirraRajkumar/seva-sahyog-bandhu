@@ -76,24 +76,17 @@ const RequestsList = () => {
 
   const handleMarkAsCompleted = () => {
     if (selectedRequest) {
-      // Update the status in the backend (mock data in this case)
       updateRequestStatus(selectedRequest.id, "completed");
-      
-      // Update the local state
       const updatedRequests = requests.map(req => 
         req.id === selectedRequest.id ? { ...req, status: "completed" as const } : req
       );
       setRequests(updatedRequests);
-      
-      // Update the selected request
       setSelectedRequest({ ...selectedRequest, status: "completed" as const });
-      
-      // Show a success toast
       toast({
-        title: t("Request Completed", "అభ్యర్థన పూర్తయింది"),
+        title: t("Delivery Completed", "డెలివరీ పూర్తయింది"),
         description: t(
-          `${selectedRequest.patientName}'s request has been marked as completed.`,
-          `${selectedRequest.patientName} యొక్క అభ్యర్థన పూర్తి చేసినట్లు గుర్తించబడింది.`
+          `${selectedRequest.patientName}'s medicine/tablet delivery marked as complete.`,
+          `${selectedRequest.patientName} కి మెడిసిన్/టాబ్లెట్ డెలివరీ పూర్తయినట్లు గుర్తించబడింది.`
         ),
         variant: "default",
       });
@@ -103,9 +96,9 @@ const RequestsList = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("Recent Health Requests", "ఇటీవలి ఆరోగ్య అభ్యర్థనలు")}</CardTitle>
+        <CardTitle>{t("Patient Tablet Requests", "రోగుల టాబ్లెట్ అభ్యర్థనలు")}</CardTitle>
         <CardDescription>
-          {t("Latest health requests from patients in your area", "మీ ప్రాంతంలోని రోగుల నుండి తాజా ఆరోగ్య అభ్యర్థనలు")}
+          {t("Requests for tablet/medicine delivery by patients in your area", "మీ ప్రాంతంలోని రోగుల నుండి టాబ్లెట్ లేదా మెడిసిన్ డెలివరీ అభ్యర్థనలు")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -134,7 +127,7 @@ const RequestsList = () => {
                   onClick={() => handleViewDetails(request)}
                 >
                   <Eye className="mr-1 h-4 w-4" />
-                  {t("View Details", "వివరాలను చూడండి")}
+                  {t("View & Monitor Log", "లాగ్ ని చూడండి మరియు పర్యవేక్షించండి")}
                 </Button>
               </div>
             </div>
@@ -145,7 +138,7 @@ const RequestsList = () => {
         <Dialog open={selectedRequest !== null} onOpenChange={(open) => !open && setSelectedRequest(null)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{t("Request Details", "అభ్యర్థన వివరాలు")}</DialogTitle>
+              <DialogTitle>{t("Patient Request Details", "రోగి అభ్యర్థన వివరాలు")}</DialogTitle>
               <DialogDescription>
                 {selectedRequest && `${t("Submitted on", "సమర్పించిన తేదీ")}: ${selectedRequest.date}`}
               </DialogDescription>
@@ -186,14 +179,23 @@ const RequestsList = () => {
 
                 <div>
                   <h4 className="text-sm font-medium text-gray-500">
+                    {t("Patient Log Data", "రోగి లాగ్ డేటా")}
+                  </h4>
+                  <p className="mt-1">
+                    {t("Review patient's medicine log, reminders and previous requests for better follow-up.", "రోగి యొక్క మెడిసిన్ లాగ్, రిమైండర్లు మరియు మునుపటి అభ్యర్థనలను మరింత మంచి ఫాలో-అప్ కోసం పర్యవేక్షించండి.")}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">
                     {t("Recommended Action", "సిఫార్సు చేయబడిన చర్య")}
                   </h4>
                   <p className="mt-1">
                     {selectedRequest.status === "urgent" 
-                      ? t("Immediate visit required", "తక్షణ సందర్శన అవసరం") 
+                      ? t("Immediate delivery and monitoring required", "తక్షణ డెలివరీ మరియు పర్యవేక్షణ అవసరం") 
                       : selectedRequest.status === "pending"
-                      ? t("Schedule a follow-up", "ఫాలో-అప్ షెడ్యూల్ చేయండి")
-                      : t("No action required", "చర్య అవసరం లేదు")}
+                      ? t("Schedule delivery and check log data", "డెలివరీ మరియు లాగ్ డేటాను చెక్ చేయండి")
+                      : t("No further action required", "ఇంకా చర్య అవసరం లేదు")}
                   </p>
                 </div>
               </div>
@@ -208,7 +210,7 @@ const RequestsList = () => {
 
               {selectedRequest && selectedRequest.status !== "completed" && (
                 <Button onClick={handleMarkAsCompleted}>
-                  {t("Mark as Completed", "పూర్తి చేసినట్లు గుర్తించండి")}
+                  {t("Mark Delivery as Completed", "డెలివరీ పూర్తయిందిగా గుర్తించండి")}
                 </Button>
               )}
             </DialogFooter>

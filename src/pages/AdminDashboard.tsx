@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -13,8 +12,8 @@ const AdminDashboard: React.FC = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   
-  const englishText = `Welcome ${currentUser?.name}. You can view all patients in your area and their health requests.`;
-  const teluguText = `స్వాగతం ${currentUser?.name}. మీరు మీ ప్రాంతంలోని అన్ని రోగులను మరియు వారి ఆరోగ్య అభ్యర్థనలను చూడవచ్చు.`;
+  const englishText = `Welcome ${currentUser?.name}. You can view all patients in your area, deliver tablets, and monitor their log data.`;
+  const teluguText = `స్వాగతం ${currentUser?.name}. మీరు మీ ప్రాంతంలోని అన్ని రోగులను చూసి, టాబ్లెట్‌లను డెలివరీ చేసి వారి లాగ్ డేటాను పర్యవేక్షించవచ్చు.`;
   
   const { speak } = useTextToSpeech({
     text: language === "english" ? englishText : teluguText,
@@ -23,8 +22,7 @@ const AdminDashboard: React.FC = () => {
   });
 
   useEffect(() => {
-    document.title = "ASHASEVA - ASHA Worker Dashboard";
-    
+    document.title = "ASHASEVA - Delivery Partner Dashboard";
     if (!currentUser || currentUser.role !== "admin") {
       navigate("/");
       return;
@@ -36,11 +34,10 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <AppHeader />
-      
       <main className="flex-grow container mx-auto p-4 md:p-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {t("ASHA Worker Dashboard", "ASHA కార్యకర్త డాష్‌బోర్డ్")}
+            {t("Delivery Partner Dashboard", "డెలివరీ పార్ట్నర్ డాష్‌బోర్డ్")}
           </h1>
           <p className="text-gray-600">
             {t(
@@ -49,7 +46,6 @@ const AdminDashboard: React.FC = () => {
             )}
           </p>
         </div>
-        
         <StatsOverview />
         <RequestsList />
       </main>

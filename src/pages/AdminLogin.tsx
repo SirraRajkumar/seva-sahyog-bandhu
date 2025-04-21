@@ -21,8 +21,8 @@ const AdminLogin: React.FC = () => {
   const { t, language } = useLanguage();
   const { toast } = useToast();
   
-  const englishText = "Welcome to ASHA worker login. Please enter your phone number and area code to continue.";
-  const teluguText = "ASHA కార్యకర్త లాగిన్‌కు స్వాగతం. కొనసాగించడానికి దయచేసి మీ ఫోన్ నంబర్ మరియు ప్రాంత కోడ్‌ను నమోదు చేయండి.";
+  const englishText = "Welcome to Delivery Partner login. Please enter your phone number and area code to continue.";
+  const teluguText = "డెలివరీ పార్ట్నర్ లాగిన్‌కు స్వాగతం. కొనసాగించడానికి దయచేసి మీ ఫోన్ నంబర్ మరియు ప్రాంత కోడ్‌ను నమోదు చేయండి.";
   
   const { speak } = useTextToSpeech({
     text: language === "english" ? englishText : teluguText,
@@ -31,7 +31,7 @@ const AdminLogin: React.FC = () => {
   });
 
   useEffect(() => {
-    document.title = "ASHASEVA - ASHA Worker Login";
+    document.title = "ASHASEVA - Delivery Partner Login";
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,7 +57,7 @@ const AdminLogin: React.FC = () => {
       } else if (user.role !== "admin") {
         toast({
           title: t("Wrong Login Type", "తప్పు లాగిన్ రకం"),
-          description: t("This account is not an ASHA worker account", "ఈ ఖాతా ASHA కార్యకర్త ఖాతా కాదు"),
+          description: t("This account is not a Delivery Partner account", "ఈ ఖాతా డెలివరీ పార్ట్నర్ ఖాతా కాదు"),
           variant: "destructive",
         });
       } else {
@@ -70,7 +70,7 @@ const AdminLogin: React.FC = () => {
     } else {
       toast({
         title: t("Account Not Found", "ఖాతా కనుగొనబడలేదు"),
-        description: t("No ASHA worker account found with this phone number", "ఈ ఫోన్ నంబర్‌తో ASHA కార్యకర్త ఖాతా కనుగొనబడలేదు"),
+        description: t("No Delivery Partner account found with this phone number", "ఈ ఫోన్ నంబర్‌తో డెలివరీ పార్ట్నర్ ఖాతా కనుగొనబడలేదు"),
         variant: "destructive",
       });
     }
@@ -96,10 +96,10 @@ const AdminLogin: React.FC = () => {
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-secondary">
-              {t("ASHA Worker Login", "ASHA కార్యకర్త లాగిన్")}
+              {t("Delivery Partner Login", "డెలివరీ పార్ట్నర్ లాగిన్")}
             </h1>
             <p className="text-gray-600 mt-2">
-              {t("Access your healthcare worker account", "మీ ఆరోగ్య కార్యకర్త ఖాతాను యాక్సెస్ చేయండి")}
+              {t("Access your delivery partner account", "మీ డెలివరీ పార్ట్నర్ ఖాతాను యాక్సెస్ చేయండి")}
             </p>
           </div>
           

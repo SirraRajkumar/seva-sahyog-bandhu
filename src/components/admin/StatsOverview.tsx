@@ -42,14 +42,14 @@ const StatsOverview = () => {
       />
       <StatsCard
         icon={<Clock className="text-yellow-500" />}
-        title={t("Pending Requests", "పెండింగ్ అభ్యర్థనలు")}
+        title={t("Tablets to Deliver", "డెలివరీ చేయాల్సిన టాబ్లెట్లు")}
         value={8}
         description={t("Need attention", "దృష్టి అవసరం")}
         iconClassName="text-yellow-500"
       />
       <StatsCard
         icon={<AlertCircle className="text-red-500" />}
-        title={t("Urgent Cases", "అత్యవసర సందర్భాలు")}
+        title={t("Logs to Monitor", "పర్యవేక్షించాల్సిన లాగ్స్")}
         value={3}
         description={t("High priority", "అధిక ప్రాధాన్యత")}
         iconClassName="text-red-500"

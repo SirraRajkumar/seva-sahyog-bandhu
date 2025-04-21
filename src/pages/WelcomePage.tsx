@@ -13,8 +13,8 @@ const WelcomePage: React.FC = () => {
   const { t, language } = useLanguage();
   const isMobile = useIsMobile();
   
-  const englishText = "Welcome to ASHASEVA, your rural healthcare companion. Are you a patient or a healthcare worker?";
-  const teluguText = "ASHASEVA కి స్వాగతం, మీ గ్రామీణ ఆరోగ్య సహచరి. మీరు రోగి లేదా ఆరోగ్య కార్యకర్త?";
+  const englishText = "Welcome to ASHASEVA, your rural healthcare companion. Are you a patient or a delivery partner?";
+  const teluguText = "ASHASEVA కి స్వాగతం, మీ గ్రామీణ ఆరోగ్య సహచరి. మీరు రోగి లేదా డెలివరీ పార్ట్నర్?";
   
   const { speak } = useTextToSpeech({
     text: language === "english" ? englishText : teluguText,
@@ -59,7 +59,7 @@ const WelcomePage: React.FC = () => {
           <Link to="/admin-login" className="block w-full">
             <Button className="btn-large w-full bg-secondary hover:bg-secondary/90">
               <Book className="mr-2" />
-              {t("I am an ASHA Worker", "నేను ASHA కార్యకర్తను")}
+              {t("I am a Delivery Partner", "నేను డెలివరీ పార్ట్నర్‌ను")}
             </Button>
           </Link>
         </div>

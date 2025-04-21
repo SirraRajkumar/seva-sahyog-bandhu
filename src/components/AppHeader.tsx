@@ -85,6 +85,11 @@ const AppHeader: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{currentUser.name}</span>
                   <User className="h-5 w-5 text-gray-600" />
+                  <span className="text-xs font-medium text-blue-400">
+                    {currentUser.role === "admin"
+                      ? t("Delivery Partner", "డెలివరీ పార్ట్నర్")
+                      : t("Patient", "రోగి")}
+                  </span>
                 </div>
                 <button 
                   onClick={handleLogout} 
