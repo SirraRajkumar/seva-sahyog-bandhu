@@ -63,8 +63,8 @@ const OrderHistory: React.FC = () => {
               </p>
               
               <p className="text-sm break-words">
-                <span className="font-medium">{t("Medicines", "మందులు")}: </span>
-                {order.prescription}
+                <span className="font-medium">{t("Prescription Image", "మందుల చిత్రం")}: </span>
+                {order.prescriptionImageUrl ? order.prescriptionImageUrl : t("No image available", "చిత్రం అందుబాటులో లేదు")}
               </p>
               
               <div className="flex items-center text-sm text-gray-600">

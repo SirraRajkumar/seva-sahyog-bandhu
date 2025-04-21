@@ -46,7 +46,6 @@ const PatientDashboard: React.FC = () => {
   const isProfileComplete = currentUser && 
     currentUser.name && 
     currentUser.village && 
-    currentUser.healthCardNumber && 
     currentUser.area;
 
   useEffect(() => {

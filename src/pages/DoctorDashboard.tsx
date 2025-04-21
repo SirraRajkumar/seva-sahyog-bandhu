@@ -62,11 +62,11 @@ const DoctorDashboard: React.FC = () => {
             </TabsList>
             
             <TabsContent value="requests">
-              <HealthRequests areaCode={currentUser.area} />
+              <HealthRequests />
             </TabsContent>
             
             <TabsContent value="patients">
-              <PatientsList areaCode={currentUser.area} />
+              <PatientsList />
             </TabsContent>
           </Tabs>
         </div>
