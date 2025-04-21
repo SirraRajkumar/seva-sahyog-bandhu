@@ -1,9 +1,16 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
-import { symptoms, findRequestsByUserId, hasSubmittedRequestToday, saveRequest } from "../data/mockData";
+import { 
+  symptoms, 
+  findRequestsByUserId, 
+  hasSubmittedRequestToday, 
+  saveRequest,
+  findOrdersByUserId 
+} from "../data/mockData";
 import AppHeader from "../components/AppHeader";
 import { useToast } from "@/components/ui/use-toast";
 import WelcomeHeader from "@/components/patient/WelcomeHeader";
@@ -16,6 +23,8 @@ import MedicineReminders from "@/components/patient/MedicineReminders";
 import EmergencyContacts from "@/components/patient/EmergencyContacts";
 import HealthTips from "@/components/patient/HealthTips";
 import ProfileCompletion from "@/components/patient/ProfileCompletion";
+import MedicineOrderSection from "@/components/patient/MedicineOrderSection";
+import OrderHistory from "@/components/patient/OrderHistory";
 
 const PatientDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -23,8 +32,8 @@ const PatientDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const englishText = `Welcome ${currentUser?.name}. Please select a symptom you are experiencing, or view your past requests.`;
-  const teluguText = `స్వాగతం ${currentUser?.name}. దయచేసి మీరు అనుభవిస్తున్న లక్షణాన్ని ఎంచుకోండి లేదా మీ గత అభ్యర్థనలను చూడండి.`;
+  const englishText = `Welcome ${currentUser?.name}. You can order medicine or report your symptoms for the doctor to review.`;
+  const teluguText = `స్వాగతం ${currentUser?.name}. మీరు మందులను ఆర్డర్ చేయవచ్చు లేదా డాక్టర్ సమీక్షించడానికి మీ లక్షణాలను నివేదించవచ్చు.`;
   
   const { speak } = useTextToSpeech({
     text: language === "english" ? englishText : teluguText,
@@ -32,6 +41,8 @@ const PatientDashboard: React.FC = () => {
     autoSpeak: true,
   });
 
+  const [hasOrders, setHasOrders] = useState(false);
+  const [ordersUpdated, setOrdersUpdated] = useState(0);
   const isProfileComplete = currentUser && 
     currentUser.name && 
     currentUser.village && 
@@ -52,8 +63,12 @@ const PatientDashboard: React.FC = () => {
       
       const requests = findRequestsByUserId(currentUser.id);
       setPastRequests(requests);
+      
+      // Check if user has any medicine orders
+      const orders = findOrdersByUserId(currentUser.id);
+      setHasOrders(orders.length > 0);
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, ordersUpdated]);
 
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [duration, setDuration] = useState<number>(1);
@@ -94,8 +109,8 @@ const PatientDashboard: React.FC = () => {
     toast({
       title: t("Request Submitted", "అభ్యర్థన సమర్పించబడింది"),
       description: t(
-        `Your health request with ${selectedSymptoms.length} symptoms has been sent to your ASHA worker`,
-        `${selectedSymptoms.length} లక్షణాలతో మీ ఆరోగ్య అభ్యర్థన మీ ASHA కార్యకర్తకు పంపబడింది`
+        `Your health request with ${selectedSymptoms.length} symptoms has been sent to your doctor`,
+        `${selectedSymptoms.length} లక్షణాలతో మీ ఆరోగ్య అభ్యర్థన మీ డాక్టర్‌కు పంపబడింది`
       ),
     });
     
@@ -103,11 +118,8 @@ const PatientDashboard: React.FC = () => {
     setDuration(1);
   };
 
-  const getSymptomName = (id: string) => {
-    const symptom = symptoms.find(s => s.id === id);
-    return symptom 
-      ? (language === "english" ? symptom.name.english : symptom.name.telugu) 
-      : id;
+  const handleOrderPlaced = () => {
+    setOrdersUpdated(prev => prev + 1);
   };
 
   if (!currentUser) return null;
@@ -130,6 +142,8 @@ const PatientDashboard: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
+            <MedicineOrderSection onOrderPlaced={handleOrderPlaced} />
+            {hasOrders && <OrderHistory />}
             {!alreadySubmitted && (
               <SubmitRequestSection
                 symptoms={symptoms}
@@ -138,13 +152,12 @@ const PatientDashboard: React.FC = () => {
                 onSubmit={handleSubmitSymptoms}
               />
             )}
-            <HealthTimeline userId={currentUser?.id || ""} />
-            <EmergencyContacts />
           </div>
           
           <div className="space-y-6">
-            <AppointmentSection />
+            <HealthTimeline userId={currentUser?.id || ""} />
             <MedicineReminders />
+            <EmergencyContacts />
             <HealthTips />
           </div>
         </div>

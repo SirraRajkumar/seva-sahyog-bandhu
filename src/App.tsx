@@ -11,8 +11,10 @@ import { LanguageProvider } from "./context/LanguageContext";
 import WelcomePage from "./pages/WelcomePage";
 import PatientLogin from "./pages/PatientLogin";
 import AdminLogin from "./pages/AdminLogin";
+import DoctorLogin from "./pages/DoctorLogin";
 import PatientDashboard from "./pages/PatientDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,8 +31,10 @@ const App = () => (
               <Route path="/" element={<WelcomePage />} />
               <Route path="/patient-login" element={<PatientLogin />} />
               <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/doctor-login" element={<DoctorLogin />} />
               <Route path="/patient-dashboard" element={<PatientDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

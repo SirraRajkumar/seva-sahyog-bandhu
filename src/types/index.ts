@@ -6,7 +6,7 @@ export interface User {
   village: string;
   healthCardNumber: string;
   area: string;
-  role: "patient" | "admin";
+  role: "patient" | "admin" | "doctor";
   requests?: HealthRequest[];
 }
 
@@ -17,6 +17,15 @@ export interface HealthRequest {
   duration: number;
   date: string;
   status: "pending" | "reviewed" | "urgent" | "completed";
+}
+
+export interface MedicineOrder {
+  id: string;
+  userId: string;
+  address: string;
+  prescription: string;
+  date: string;
+  status: "pending" | "confirmed" | "delivering" | "delivered";
 }
 
 export interface Symptom {

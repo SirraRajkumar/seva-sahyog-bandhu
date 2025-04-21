@@ -1,5 +1,4 @@
-
-import { User, HealthRequest, Symptom } from "../types";
+import { User, HealthRequest, Symptom, MedicineOrder } from "../types";
 
 export const users: User[] = [
   {
@@ -46,6 +45,15 @@ export const users: User[] = [
     healthCardNumber: "",
     area: "AP002",
     role: "admin"
+  },
+  {
+    id: "d1",
+    name: "Dr. Suresh Kumar",
+    phone: "9876543215",
+    village: "Vijayawada",
+    healthCardNumber: "",
+    area: "AP001",
+    role: "doctor"
   }
 ];
 
@@ -73,6 +81,33 @@ export const healthRequests: HealthRequest[] = [
     duration: 2,
     date: "2025-04-20",
     status: "urgent"
+  }
+];
+
+export const medicineOrders: MedicineOrder[] = [
+  {
+    id: "o1",
+    userId: "p1",
+    address: "123 Main Street, Narayanpur, AP001",
+    prescription: "Paracetamol 500mg - 10 tablets, Vitamin C 500mg - 30 tablets",
+    date: "2025-04-20",
+    status: "pending"
+  },
+  {
+    id: "o2",
+    userId: "p2",
+    address: "45 Temple Road, Gollapudi, AP001",
+    prescription: "Amoxicillin 250mg - 15 tablets, Cough syrup 100ml",
+    date: "2025-04-21",
+    status: "delivering"
+  },
+  {
+    id: "o3",
+    userId: "p3",
+    address: "789 Market Street, Jangareddygudem, AP002",
+    prescription: "Ibuprofen 400mg - 20 tablets, Montelukast 10mg - 10 tablets",
+    date: "2025-04-19",
+    status: "delivered"
   }
 ];
 
@@ -127,6 +162,7 @@ export const symptoms: Symptom[] = [
   }
 ];
 
+// User related functions
 export function findUserByPhone(phone: string): User | undefined {
   return users.find(user => user.phone === phone);
 }
@@ -139,6 +175,10 @@ export function findRequestsByArea(area: string): HealthRequest[] {
   const areaUsers = users.filter(user => user.area === area && user.role === "patient");
   const userIds = areaUsers.map(user => user.id);
   return healthRequests.filter(request => userIds.includes(request.userId));
+}
+
+export function findUserById(id: string): User | undefined {
+  return users.find(user => user.id === id);
 }
 
 export function findSymptomById(id: string): Symptom | undefined {
@@ -184,4 +224,40 @@ export function saveUser(user: Omit<User, "id" | "role">): User {
 export function hasSubmittedRequestToday(userId: string): boolean {
   const today = new Date().toISOString().split('T')[0];
   return healthRequests.some(request => request.userId === userId && request.date === today);
+}
+
+// Medicine Order related functions
+export function findOrdersByUserId(userId: string): MedicineOrder[] {
+  return medicineOrders.filter(order => order.userId === userId);
+}
+
+export function findOrdersByArea(area: string): MedicineOrder[] {
+  const areaUsers = users.filter(user => user.area === area && user.role === "patient");
+  const userIds = areaUsers.map(user => user.id);
+  return medicineOrders.filter(order => userIds.includes(order.userId));
+}
+
+export function saveMedicineOrder(order: Omit<MedicineOrder, "id" | "date">): MedicineOrder {
+  const newOrder = {
+    ...order,
+    id: `o${medicineOrders.length + 1}`,
+    date: new Date().toISOString().split('T')[0],
+  } as MedicineOrder;
+  
+  medicineOrders.push(newOrder);
+  return newOrder;
+}
+
+export function updateOrderStatus(orderId: string, newStatus: "pending" | "confirmed" | "delivering" | "delivered"): MedicineOrder | undefined {
+  const orderIndex = medicineOrders.findIndex(order => order.id === orderId);
+  if (orderIndex !== -1) {
+    medicineOrders[orderIndex].status = newStatus;
+    return medicineOrders[orderIndex];
+  }
+  return undefined;
+}
+
+export function countOrdersByAreaAndStatus(area: string, status: string): number {
+  const orders = findOrdersByArea(area);
+  return orders.filter(order => order.status === status).length;
 }

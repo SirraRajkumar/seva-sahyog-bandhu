@@ -1,7 +1,9 @@
 
 import { useLanguage } from "@/context/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { UserCircle, Clock, AlertCircle } from "lucide-react";
+import { Package, Truck, Check } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { countOrdersByAreaAndStatus } from "@/data/mockData";
 
 interface StatsCardProps {
   icon: React.ReactNode;
@@ -30,29 +32,35 @@ const StatsCard: React.FC<StatsCardProps> = ({ icon, title, value, description, 
 
 const StatsOverview = () => {
   const { t } = useLanguage();
+  const { currentUser } = useAuth();
+  const area = currentUser?.area || "";
+
+  const pendingCount = countOrdersByAreaAndStatus(area, "pending");
+  const deliveringCount = countOrdersByAreaAndStatus(area, "delivering");
+  const deliveredCount = countOrdersByAreaAndStatus(area, "delivered");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <StatsCard
-        icon={<UserCircle className="text-blue-500" />}
-        title={t("Patients", "రోగులు")}
-        value={24}
-        description={t("Total in your area", "మీ ప్రాంతంలో మొత్తం")}
+        icon={<Package className="text-blue-500" />}
+        title={t("Orders to Deliver", "డెలివరీ చేయాల్సిన ఆర్డర్లు")}
+        value={pendingCount}
+        description={t("Awaiting pickup", "పికప్ కోసం వేచి ఉన్నవి")}
         iconClassName="text-blue-500"
       />
       <StatsCard
-        icon={<Clock className="text-yellow-500" />}
-        title={t("Tablets to Deliver", "డెలివరీ చేయాల్సిన టాబ్లెట్లు")}
-        value={8}
-        description={t("Need attention", "దృష్టి అవసరం")}
+        icon={<Truck className="text-yellow-500" />}
+        title={t("Out for Delivery", "డెలివరీకి బయలుదేరినవి")}
+        value={deliveringCount}
+        description={t("Currently delivering", "ప్రస్తుతం డెలివరీ చేస్తున్నవి")}
         iconClassName="text-yellow-500"
       />
       <StatsCard
-        icon={<AlertCircle className="text-red-500" />}
-        title={t("Logs to Monitor", "పర్యవేక్షించాల్సిన లాగ్స్")}
-        value={3}
-        description={t("High priority", "అధిక ప్రాధాన్యత")}
-        iconClassName="text-red-500"
+        icon={<Check className="text-green-500" />}
+        title={t("Delivered Today", "ఈరోజు డెలివరీ అయినవి")}
+        value={deliveredCount}
+        description={t("Completed deliveries", "పూర్తి చేసిన డెలివరీలు")}
+        iconClassName="text-green-500"
       />
     </div>
   );

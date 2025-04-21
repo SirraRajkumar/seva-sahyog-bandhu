@@ -5,7 +5,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import LanguageToggle from "../components/LanguageToggle";
 import { Button } from "@/components/ui/button";
-import { User, Book } from "lucide-react";
+import { User, Truck, User as DoctorIcon } from "lucide-react";
 import SpeechToggle from "../components/SpeechToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -13,8 +13,8 @@ const WelcomePage: React.FC = () => {
   const { t, language } = useLanguage();
   const isMobile = useIsMobile();
   
-  const englishText = "Welcome to ASHASEVA, your rural healthcare companion. Are you a patient or a delivery partner?";
-  const teluguText = "ASHASEVA కి స్వాగతం, మీ గ్రామీణ ఆరోగ్య సహచరి. మీరు రోగి లేదా డెలివరీ పార్ట్నర్?";
+  const englishText = "Welcome to ASHASEVA, your medicine delivery app. Are you a patient, a delivery partner, or a doctor?";
+  const teluguText = "ASHASEVA కి స్వాగతం, మీ మందుల డెలివరీ యాప్. మీరు రోగి, డెలివరీ పార్ట్నర్ లేదా డాక్టర్?";
   
   const { speak } = useTextToSpeech({
     text: language === "english" ? englishText : teluguText,
@@ -23,7 +23,7 @@ const WelcomePage: React.FC = () => {
   });
 
   useEffect(() => {
-    document.title = "ASHASEVA - Rural Healthcare Companion";
+    document.title = "ASHASEVA - Medicine Delivery App";
   }, []);
 
   return (
@@ -43,8 +43,8 @@ const WelcomePage: React.FC = () => {
         <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4">ASHASEVA</h1>
         <p className="text-lg md:text-2xl text-gray-700 mb-6 max-w-xl">
           {t(
-            "Your Rural Healthcare Companion", 
-            "మీ గ్రామీణ ఆరోగ్య సహచరి"
+            "Your Medicine Doorstep Delivery", 
+            "మీ మందుల డోర్‌స్టెప్ డెలివరీ"
           )}
         </p>
         
@@ -58,8 +58,15 @@ const WelcomePage: React.FC = () => {
           
           <Link to="/admin-login" className="block w-full">
             <Button className="btn-large w-full bg-secondary hover:bg-secondary/90">
-              <Book className="mr-2" />
+              <Truck className="mr-2" />
               {t("I am a Delivery Partner", "నేను డెలివరీ పార్ట్నర్‌ను")}
+            </Button>
+          </Link>
+          
+          <Link to="/doctor-login" className="block w-full">
+            <Button className="btn-large w-full bg-green-600 hover:bg-green-700">
+              <DoctorIcon className="mr-2" />
+              {t("I am a Doctor", "నేను ఒక డాక్టర్‌ను")}
             </Button>
           </Link>
         </div>
