@@ -21,7 +21,6 @@ import AppointmentSection from "@/components/patient/AppointmentSection";
 import MedicineReminders from "@/components/patient/MedicineReminders";
 import EmergencyContacts from "@/components/patient/EmergencyContacts";
 import HealthTips from "@/components/patient/HealthTips";
-import ProfileCompletion from "@/components/patient/ProfileCompletion";
 import MedicineOrderSection from "@/components/patient/MedicineOrderSection";
 import OrderHistory from "@/components/patient/OrderHistory";
 
@@ -53,9 +52,7 @@ const PatientDashboard: React.FC = () => {
     currentUser.name && 
     currentUser.name.trim() !== "" && 
     currentUser.village && 
-    currentUser.village.trim() !== "" && 
-    currentUser.area && 
-    currentUser.area.trim() !== "";
+    currentUser.village.trim() !== "";
 
   useEffect(() => {
     document.title = "ASHASEVA - Patient Dashboard";
@@ -63,6 +60,13 @@ const PatientDashboard: React.FC = () => {
     if (!currentUser) {
       console.log("No current user, redirecting to login");
       navigate("/");
+      return;
+    }
+    
+    // If profile is incomplete, redirect to profile completion page
+    if (!isProfileComplete) {
+      console.log("Profile incomplete, redirecting to profile completion");
+      navigate("/profile-completion");
       return;
     }
     
@@ -129,12 +133,6 @@ const PatientDashboard: React.FC = () => {
   };
 
   if (!currentUser) return null;
-  
-  // Show profile completion if profile is incomplete
-  if (!isProfileComplete) {
-    console.log("Profile incomplete, showing completion form");
-    return <ProfileCompletion />;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">

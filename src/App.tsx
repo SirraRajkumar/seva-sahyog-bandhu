@@ -16,6 +16,7 @@ import PatientDashboard from "./pages/PatientDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import NotFound from "./pages/NotFound";
+import ProfileCompletion from "./components/patient/ProfileCompletion";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/doctor-login" element={<DoctorLogin />} />
               <Route path="/patient-dashboard" element={<PatientDashboard />} />
+              <Route path="/profile-completion" element={<ProfileCompletion />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
               <Route path="*" element={<NotFound />} />

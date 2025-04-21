@@ -34,10 +34,10 @@ const ProfileCompletion: React.FC = () => {
       return;
     }
     
-    if (!formData.name || !formData.village || !formData.area) {
+    if (!formData.name || !formData.village) {
       toast({
         title: t("Missing Information", "సమాచారం లేదు"),
-        description: t("Please fill in all fields", "దయచేసి అన్ని ఫీల్డ్‌లను పూరించండి"),
+        description: t("Please fill in all required fields", "దయచేసి అన్ని అవసరమైన ఫీల్డ్‌లను పూరించండి"),
         variant: "destructive",
       });
       return;
@@ -67,9 +67,8 @@ const ProfileCompletion: React.FC = () => {
       description: t("Your profile has been completed", "మీ ప్రొఫైల్ పూర్తయింది"),
     });
     
-    // Force a refresh of the page to ensure we load all dashboard components
+    // Navigate without forcing a page reload
     navigate("/patient-dashboard", { replace: true });
-    window.location.reload();
   };
 
   return (
@@ -106,7 +105,7 @@ const ProfileCompletion: React.FC = () => {
                 id="area"
                 value={formData.area}
                 onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                placeholder={t("Enter your area code", "మీ ప్రాంత కోడ్‌ను నమోదు చేయండి")}
+                placeholder={t("Enter your area code (optional)", "మీ ప్రాంత కోడ్‌ను నమోదు చేయండి (ఐచ్ఛికం)")}
               />
             </div>
           </CardContent>
