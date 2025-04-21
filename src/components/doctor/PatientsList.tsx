@@ -1,77 +1,53 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableHead, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { User, File } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/context/LanguageContext";
-import { findPatientsByArea, User as PatientType } from "../../data/mockData";
+import { useAuth } from "@/context/AuthContext";
+import { findPatientsByArea } from "../../data/mockData";
+import { User } from "../../types";
 
-interface PatientsListProps {
-  areaCode: string;
-}
-
-const PatientsList: React.FC<PatientsListProps> = ({ areaCode }) => {
+const PatientsList: React.FC = () => {
   const { t } = useLanguage();
-  const [patients, setPatients] = useState<PatientType[]>([]);
-  
+  const { currentUser } = useAuth();
+  const [patients, setPatients] = useState<User[]>([]);
+  const [search, setSearch] = useState<string>("");
+
   useEffect(() => {
-    const areaPatients = findPatientsByArea(areaCode);
-    setPatients(areaPatients);
-  }, [areaCode]);
-  
-  if (patients.length === 0) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-8 text-gray-500">
-            <User className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-            <h3 className="text-lg font-medium mb-1">
-              {t("No Patients", "రోగులు లేరు")}
-            </h3>
-            <p>
-              {t("No patients found in your area", "మీ ప్రాంతంలో రోగులు కనుగొనబడలేదు")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
+    if (currentUser) {
+      const areaPatients = findPatientsByArea(currentUser.area);
+      setPatients(areaPatients);
+    }
+  }, [currentUser]);
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  };
+
+  const filteredPatients = patients.filter((patient) =>
+    patient.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          {t("Patients in Your Area", "మీ ప్రాంతంలో రోగులు")}
-        </CardTitle>
+        <CardTitle>{t("Patients List", "రోగుల జాబితా")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("Name", "పేరు")}</TableHead>
-              <TableHead>{t("Village", "గ్రామం")}</TableHead>
-              <TableHead>{t("Health Card", "ఆరోగ్య కార్డ్")}</TableHead>
-              <TableHead>{t("Actions", "చర్యలు")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {patients.map((patient) => (
-              <TableRow key={patient.id}>
-                <TableCell className="font-medium">{patient.name}</TableCell>
-                <TableCell>{patient.village}</TableCell>
-                <TableCell>{patient.healthCardNumber}</TableCell>
-                <TableCell>
-                  <Button variant="outline" size="sm">
-                    <File className="h-4 w-4 mr-1" />
-                    {t("View Records", "రికార్డ్‌లను వీక్షించండి")}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Input
+          type="search"
+          placeholder={t("Search patients...", "రోగుల కోసం వెతకండి...")}
+          value={search}
+          onChange={handleSearch}
+          className="mb-4"
+        />
+        <div className="divide-y divide-gray-200">
+          {filteredPatients.map((patient) => (
+            <div key={patient.id} className="py-2">
+              <p className="text-sm font-medium">{patient.name}</p>
+              <p className="text-xs text-gray-500">{patient.phone}</p>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

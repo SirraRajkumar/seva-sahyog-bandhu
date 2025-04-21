@@ -1,55 +1,57 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Table, 
-  TableHead, 
-  TableHeader, 
-  TableRow, 
-  TableCell, 
-  TableBody 
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, File } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
-import { useToast } from "@/components/ui/use-toast";
-import { 
-  findRequestsByArea, 
-  findSymptomById, 
-  findUserById, 
+import { useAuth } from "@/context/AuthContext";
+import {
+  findRequestsByArea,
+  findUserById,
+  findSymptomById,
   updateRequestStatus,
-  HealthRequest
+  healthRequests,
 } from "../../data/mockData";
+import { HealthRequest } from "../../types";
 
-interface HealthRequestsProps {
-  areaCode: string;
-}
-
-const HealthRequests: React.FC<HealthRequestsProps> = ({ areaCode }) => {
-  const { t, language } = useLanguage();
+const HealthRequests: React.FC = () => {
+  const { t } = useLanguage();
+  const { currentUser } = useAuth();
   const { toast } = useToast();
+  const [filter, setFilter] = useState<string>("all");
   const [requests, setRequests] = useState<HealthRequest[]>([]);
-  
-  const refreshRequests = () => {
-    const areaRequests = findRequestsByArea(areaCode);
-    setRequests(areaRequests);
+
+  React.useEffect(() => {
+    if (currentUser) {
+      const areaRequests = findRequestsByArea(currentUser.area);
+      setRequests(areaRequests);
+    }
+  }, [currentUser]);
+
+  const handleStatusChange = (requestId: string, status: "pending" | "reviewed" | "urgent" | "completed") => {
+    const updated = updateRequestStatus(requestId, status);
+    if (updated) {
+      toast({
+        title: t("Status Updated", "స్థితి నవీకరించబడింది"),
+        description: t("Request status has been updated.", "అభ్యర్థన స్థితి నవీకరించబడింది."),
+      });
+
+      // Update local state
+      setRequests(requests.map(req => req.id === requestId ? {...req, status} : req));
+    }
   };
-  
-  useEffect(() => {
-    refreshRequests();
-  }, [areaCode]);
-  
-  const getSymptomName = (symptomId: string) => {
-    const symptom = findSymptomById(symptomId);
-    return symptom ? (language === "english" ? symptom.name.english : symptom.name.telugu) : symptomId;
-  };
-  
-  const getPatientName = (userId: string) => {
-    const user = findUserById(userId);
-    return user ? user.name : "Unknown";
-  };
-  
+
+  const filteredRequests = filter === "all" 
+    ? requests 
+    : requests.filter(req => req.status === filter);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
@@ -57,114 +59,84 @@ const HealthRequests: React.FC<HealthRequestsProps> = ({ areaCode }) => {
       case "reviewed":
         return <Badge variant="default">{t("Reviewed", "సమీక్షించబడింది")}</Badge>;
       case "urgent":
-        return <Badge variant="destructive">{t("Urgent", "అత్యవసర")}</Badge>;
+        return <Badge variant="destructive">{t("Urgent", "అత్యవసరం")}</Badge>;
       case "completed":
-        return <Badge variant="success">{t("Completed", "పూర్తయింది")}</Badge>;
+        return <Badge variant="outline">{t("Completed", "పూర్తయింది")}</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
   };
-  
-  const handleUpdateStatus = (requestId: string, newStatus: "reviewed" | "urgent" | "completed") => {
-    const updated = updateRequestStatus(requestId, newStatus);
-    
-    if (updated) {
-      toast({
-        title: t("Request Updated", "అభ్యర్థన నవీకరించబడింది"),
-        description: t(
-          `Request status updated to ${newStatus}`,
-          `అభ్యర్థన స్థితి ${newStatus}కి నవీకరించబడింది`
-        )
-      });
-      
-      refreshRequests();
-    }
-  };
-  
-  if (requests.length === 0) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-8 text-gray-500">
-            <File className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-            <h3 className="text-lg font-medium mb-1">
-              {t("No Requests", "అభ్యర్థనలు లేవు")}
-            </h3>
-            <p>
-              {t("No health requests from patients in your area", "మీ ప్రాంతంలోని రోగుల నుండి ఆరోగ్య అభ్యర్థనలు లేవు")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <File className="h-5 w-5" />
-          {t("Patient Health Requests", "రోగి ఆరోగ్య అభ్యర్థనలు")}
-        </CardTitle>
+        <CardTitle>{t("Health Requests", "ఆరోగ్య అభ్యర్థనలు")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("Patient", "రోగి")}</TableHead>
-              <TableHead>{t("Symptom", "లక్షణం")}</TableHead>
-              <TableHead>{t("Duration (Days)", "వ్యవధి (రోజులు)")}</TableHead>
-              <TableHead>{t("Date", "తేదీ")}</TableHead>
-              <TableHead>{t("Status", "స్థితి")}</TableHead>
-              <TableHead>{t("Actions", "చర్యలు")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell className="font-medium">{getPatientName(request.userId)}</TableCell>
-                <TableCell>{getSymptomName(request.symptom)}</TableCell>
-                <TableCell>{request.duration}</TableCell>
-                <TableCell>{request.date}</TableCell>
-                <TableCell>{getStatusBadge(request.status)}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    {request.status === "pending" && (
-                      <>
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleUpdateStatus(request.id, "reviewed")}
-                        >
-                          <Check className="h-4 w-4 mr-1" />
-                          {t("Mark Reviewed", "సమీక్షించినట్లు గుర్తించండి")}
-                        </Button>
-                        
-                        <Button 
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleUpdateStatus(request.id, "urgent")}
-                        >
-                          {t("Mark Urgent", "అత్యవసరంగా గుర్తించండి")}
-                        </Button>
-                      </>
-                    )}
-                    
-                    {(request.status === "reviewed" || request.status === "urgent") && (
-                      <Button 
-                        size="sm" 
-                        variant="default"
-                        onClick={() => handleUpdateStatus(request.id, "completed")}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        {t("Complete", "పూర్తి చేయండి")}
-                      </Button>
-                    )}
+        <div className="mb-4">
+          <Select onValueChange={setFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={t("Filter by Status", "స్థితి ద్వారా ఫిల్టర్ చేయండి")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("All", "అన్నీ")}</SelectItem>
+              <SelectItem value="pending">{t("Pending", "పెండింగ్")}</SelectItem>
+              <SelectItem value="reviewed">{t("Reviewed", "సమీక్షించబడింది")}</SelectItem>
+              <SelectItem value="urgent">{t("Urgent", "అత్యవసరం")}</SelectItem>
+              <SelectItem value="completed">{t("Completed", "పూర్తయింది")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="divide-y divide-gray-200">
+          {filteredRequests.map((request) => {
+            const user = findUserById(request.userId);
+            const symptom = findSymptomById(request.symptom);
+
+            return (
+              <div key={request.id} className="py-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">{user?.name}</h3>
+                    <p className="text-sm text-gray-500">
+                      {t("Phone", "ఫోన్")}: {user?.phone}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {t("Village", "గ్రామం")}: {user?.village}
+                    </p>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  <div>
+                    <p>
+                      <span className="font-medium">{t("Symptom", "లక్షణం")}:</span>{" "}
+                      {symptom?.name[language]} ({symptom?.name.english})
+                    </p>
+                    <p>
+                      <span className="font-medium">{t("Duration", "వ్యవధి")}:</span> {request.duration} {t("days", "రోజులు")}
+                    </p>
+                    <p>
+                      <span className="font-medium">{t("Date", "తేదీ")}:</span> {request.date}
+                    </p>
+                    <div className="mt-2">
+                      {getStatusBadge(request.status)}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <Select onValueChange={(value) => handleStatusChange(request.id, value as "pending" | "reviewed" | "urgent" | "completed")}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder={t("Update Status", "స్థితిని నవీకరించండి")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">{t("Pending", "పెండింగ్")}</SelectItem>
+                      <SelectItem value="reviewed">{t("Reviewed", "సమీక్షించబడింది")}</SelectItem>
+                      <SelectItem value="urgent">{t("Urgent", "అత్యవసరం")}</SelectItem>
+                      <SelectItem value="completed">{t("Completed", "పూర్తయింది")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );

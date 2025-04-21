@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Package, Truck, Check } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "../../context/AuthContext";
-import { findOrdersByUserId, MedicineOrder } from "../../data/mockData";
+import { findOrdersByUserId } from "../../data/mockData";
+import { MedicineOrder } from "../../types";
 
 const OrderHistory: React.FC = () => {
   const { t, language } = useLanguage();
@@ -24,11 +25,11 @@ const OrderHistory: React.FC = () => {
       case "pending":
         return <Badge variant="secondary">{t("Pending", "పెండింగ్")}</Badge>;
       case "confirmed":
-        return <Badge variant="primary">{t("Confirmed", "నిర్ధారించబడింది")}</Badge>;
+        return <Badge variant="outline">{t("Confirmed", "నిర్ధారించబడింది")}</Badge>;
       case "delivering":
-        return <Badge variant="warning">{t("Out for Delivery", "డెలివరీ కోసం బయలుదేరింది")}</Badge>;
+        return <Badge variant="default">{t("Out for Delivery", "డెలివరీ కోసం బయలుదేరింది")}</Badge>;
       case "delivered":
-        return <Badge variant="success">{t("Delivered", "డెలివరీ చేయబడింది")}</Badge>;
+        return <Badge variant="secondary">{t("Delivered", "డెలివరీ చేయబడింది")}</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
