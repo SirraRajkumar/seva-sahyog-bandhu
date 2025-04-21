@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
@@ -7,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { User } from "@/types";
 
 const ProfileCompletion: React.FC = () => {
   const { t } = useLanguage();
@@ -23,7 +23,17 @@ const ProfileCompletion: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser?.phone) return;
+    
+    if (!currentUser) {
+      toast({
+        title: t("Error", "లోపం"),
+        description: t("User session expired. Please login again.", "వినియోగదారు సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ అవ్వండి."),
+        variant: "destructive",
+      });
+      navigate("/patient-login");
+      return;
+    }
+    
     if (!formData.name || !formData.village || !formData.area) {
       toast({
         title: t("Missing Information", "సమాచారం లేదు"),
@@ -32,14 +42,34 @@ const ProfileCompletion: React.FC = () => {
       });
       return;
     }
-    register({
+    
+    // Make sure we have the user's phone number
+    if (!currentUser.phone) {
+      toast({
+        title: t("Error", "లోపం"),
+        description: t("User information is incomplete. Please login again.", "వినియోగదారు సమాచారం అసంపూర్తిగా ఉంది. దయచేసి మళ్లీ లాగిన్ అవ్వండి."),
+        variant: "destructive",
+      });
+      navigate("/patient-login");
+      return;
+    }
+    
+    // Register updates the user with all fields
+    const updatedUser = register({
       ...formData,
       phone: currentUser.phone,
     });
+    
+    console.log("Profile updated successfully:", updatedUser);
+    
     toast({
       title: t("Profile Updated", "ప్రొఫైల్ నవీకరించబడింది"),
       description: t("Your profile has been completed", "మీ ప్రొఫైల్ పూర్తయింది"),
     });
+    
+    // Force a refresh of the page to ensure we load all dashboard components
+    navigate("/patient-dashboard", { replace: true });
+    window.location.reload();
   };
 
   return (

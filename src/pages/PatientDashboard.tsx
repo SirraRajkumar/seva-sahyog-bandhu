@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -43,20 +42,34 @@ const PatientDashboard: React.FC = () => {
 
   const [hasOrders, setHasOrders] = useState(false);
   const [ordersUpdated, setOrdersUpdated] = useState(0);
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [duration, setDuration] = useState<number>(1);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState<boolean>(false);
+  const [pastRequests, setPastRequests] = useState<any[]>([]);
+  
+  // Check if profile is complete (all required fields filled)
   const isProfileComplete = currentUser && 
     currentUser.name && 
+    currentUser.name.trim() !== "" && 
     currentUser.village && 
-    currentUser.area;
+    currentUser.village.trim() !== "" && 
+    currentUser.area && 
+    currentUser.area.trim() !== "";
 
   useEffect(() => {
     document.title = "ASHASEVA - Patient Dashboard";
     
     if (!currentUser) {
+      console.log("No current user, redirecting to login");
       navigate("/");
       return;
     }
     
     if (currentUser) {
+      console.log("Current user:", currentUser);
+      console.log("Profile complete:", isProfileComplete);
+      
       const submitted = hasSubmittedRequestToday(currentUser.id);
       setAlreadySubmitted(submitted);
       
@@ -67,13 +80,7 @@ const PatientDashboard: React.FC = () => {
       const orders = findOrdersByUserId(currentUser.id);
       setHasOrders(orders.length > 0);
     }
-  }, [currentUser, navigate, ordersUpdated]);
-
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
-  const [duration, setDuration] = useState<number>(1);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [alreadySubmitted, setAlreadySubmitted] = useState<boolean>(false);
-  const [pastRequests, setPastRequests] = useState<any[]>([]);
+  }, [currentUser, navigate, ordersUpdated, isProfileComplete]);
 
   const handleSymptomSelect = (symptomId: string) => {
     setSelectedSymptoms(prev => {
@@ -123,7 +130,9 @@ const PatientDashboard: React.FC = () => {
 
   if (!currentUser) return null;
   
+  // Show profile completion if profile is incomplete
   if (!isProfileComplete) {
+    console.log("Profile incomplete, showing completion form");
     return <ProfileCompletion />;
   }
 
