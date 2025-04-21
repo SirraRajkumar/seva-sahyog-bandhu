@@ -1,11 +1,10 @@
-
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import { User } from "../types";
-import { findUserByPhone, saveUser } from "../data/mockData";
+import { findUserByIdentifier, saveUser } from "../data/mockData";
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (phone: string) => User | null;
+  login: (identifier: string) => User | null; // now identifier (phone or id)
   register: (userData: Omit<User, "id" | "role">) => User;
   logout: () => void;
   isAuthenticated: boolean;
@@ -24,8 +23,8 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const login = (phone: string): User | null => {
-    const user = findUserByPhone(phone);
+  const login = (identifier: string): User | null => {
+    const user = findUserByIdentifier(identifier);
     if (user) {
       setCurrentUser(user);
       localStorage.setItem("currentUser", JSON.stringify(user));

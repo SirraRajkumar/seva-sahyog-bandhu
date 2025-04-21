@@ -13,20 +13,22 @@ import LanguageToggle from "../components/LanguageToggle";
 import { useToast } from "@/components/ui/use-toast";
 
 const PatientLogin: React.FC = () => {
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState(""); // input for phone or id
   const [isRegistering, setIsRegistering] = useState(false);
   const [name, setName] = useState("");
   const [village, setVillage] = useState("");
-  const [area, setArea] = useState("");
-  
+  // REMOVE area from registration for consistency with login removal
+  // If registration still needs "area" for your data model, you can keep it, but based on the request it's to be removed:
+  // const [area, setArea] = useState("");
+
   const navigate = useNavigate();
   const { login, register } = useAuth();
   const { t, language } = useLanguage();
   const { toast } = useToast();
-  
-  const englishLoginText = "Welcome to patient login. Please enter your phone number to continue.";
-  const teluguLoginText = "రోగి లాగిన్‌కు స్వాగతం. కొనసాగించడానికి దయచేసి మీ ఫోన్ నెంబర్‌ను నమోదు చేయండి.";
-  
+
+  const englishLoginText = "Welcome to patient login. Please enter your registered mobile number or unique ID to continue.";
+  const teluguLoginText = "రోగి లాగిన్‌కు స్వాగతం. కొనసాగించడానికి దయచేసి మీ రిజిస్టర్ చేసిన ఫోన్ నెంబరు లేదా యూనిక్ ఐడి నమోదు చేయండి.";
+
   const englishRegisterText = "Please complete your registration by filling out all fields.";
   const teluguRegisterText = "దయచేసి అన్ని ఫీల్డ్‌లను నింపడం ద్వారా మీ నమోదును పూర్తి చేయండి.";
 
@@ -46,19 +48,17 @@ const PatientLogin: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isRegistering) {
-      // Login flow
-      if (!phone || phone.length < 10) {
+      if (!identifier || identifier.length < 3) {
         toast({
-          title: t("Invalid Phone Number", "చెల్లని ఫోన్ నంబర్"),
-          description: t("Please enter a valid 10-digit phone number", "దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల ఫోన్ నంబర్‌ని నమోదు చేయండి"),
+          title: t("Invalid Input", "చెల్లని ఇన్‌పుట్"),
+          description: t("Please enter a valid mobile number or unique ID", "దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్ లేదా యూనిక్ ఐడి నమోదు చేయండి"),
           variant: "destructive",
         });
         return;
       }
-      
-      const user = login(phone);
+      const user = login(identifier);
       if (user) {
         if (user.role === "patient") {
           toast({
@@ -70,16 +70,13 @@ const PatientLogin: React.FC = () => {
           toast({
             title: t("Wrong Login Type", "తప్పు లాగిన్ రకం"),
             description: t("This account is not a patient account", "ఈ ఖాతా రోగి ఖాతా కాదు"),
-            variant: "destructive",
           });
         }
       } else {
-        // User not found, switch to registration
         setIsRegistering(true);
       }
     } else {
-      // Registration flow
-      if (!name || !phone || !village || !area) {
+      if (!name || !identifier || !village) {
         toast({
           title: t("Incomplete Form", "అసంపూర్ణ ఫారమ్"),
           description: t("Please fill out all fields", "దయచేసి అన్ని ఫీల్డ్‌లను పూరించండి"),
@@ -87,17 +84,15 @@ const PatientLogin: React.FC = () => {
         });
         return;
       }
-      
-      if (phone.length < 10) {
+      if (identifier.length < 10 && identifier.length < 3) {
         toast({
-          title: t("Invalid Phone Number", "చెల్లని ఫోన్ నంబర్"),
-          description: t("Please enter a valid 10-digit phone number", "దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల ఫోన్ నంబర్‌ని నమోదు చేయండి"),
+          title: t("Invalid Input", "చెల్లని ఇన్‌పుట్"),
+          description: t("Please enter a valid mobile number or unique ID", "దయచేసి ఫోన్ నంబర్ లేదా యూనిక్ ఐడి నమోదు చేయండి"),
           variant: "destructive",
         });
         return;
       }
-      
-      const newUser = register({ name, phone, village, area });
+      const newUser = register({ name, phone: identifier, village, area: "" });
       toast({
         title: t("Registration Successful", "నమోదు విజయవంతమైంది"),
         description: t(`Welcome, ${newUser.name}`, `స్వాగతం, ${newUser.name}`),
@@ -153,13 +148,13 @@ const PatientLogin: React.FC = () => {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="phone">{t("Phone Number", "ఫోన్ నంబర్")}</Label>
+              <Label htmlFor="id-or-phone">{t("Mobile Number or Unique ID", "ఫోన్ నంబర్ లేదా ఐడి")}</Label>
               <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder={t("Enter your phone number", "మీ ఫోన్ నంబర్‌ను నమోదు చేయండి")}
+                id="id-or-phone"
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder={t("Enter phone number or ID", "ఫోన్ నంబర్ లేదా ఐడి నమోదు చేయండి")}
                 className="text-lg p-6"
               />
             </div>
@@ -174,18 +169,6 @@ const PatientLogin: React.FC = () => {
                     value={village}
                     onChange={(e) => setVillage(e.target.value)}
                     placeholder={t("Enter your village name", "మీ గ్రామం పేరును నమోదు చేయండి")}
-                    className="text-lg p-6"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="area">{t("Area Code", "ఏరియా కోడ్")}</Label>
-                  <Input
-                    id="area"
-                    type="text"
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    placeholder={t("Enter your area code (e.g. AP001)", "మీ ప్రాంత కోడ్‌ను నమోదు చేయండి (ఉదా. AP001)")}
                     className="text-lg p-6"
                   />
                 </div>
@@ -211,8 +194,8 @@ const PatientLogin: React.FC = () => {
             {!isRegistering && (
               <p className="text-center text-sm text-gray-600 mt-4">
                 {t(
-                  "New user? Enter your phone number and we'll help you register.", 
-                  "కొత్త వినియోగదారు? మీ ఫోన్ నంబర్‌ను నమోదు చేయండి మరియు మేము మిమ్మల్ని నమోదు చేయడానికి సహాయం చేస్తాము."
+                  "New user? Enter your mobile number or ID and we'll help you register.", 
+                  "కొత్త వినియోగదారు? మీ ఫోన్ నంబర్ లేదా ఐడి నమోదు చేయండి మరియు మేము మిమ్మల్ని నమోదు చేయడానికి సహాయం చేస్తాము."
                 )}
               </p>
             )}

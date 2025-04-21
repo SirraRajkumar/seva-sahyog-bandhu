@@ -160,8 +160,9 @@ export const symptoms: Symptom[] = [
 ];
 
 // User related functions
-export function findUserByPhone(phone: string): User | undefined {
-  return users.find(user => user.phone === phone);
+export function findUserByIdentifier(identifier: string): User | undefined {
+  // identifier can be phone or id
+  return users.find(user => user.phone === identifier || user.id === identifier);
 }
 
 export function findRequestsByUserId(userId: string): HealthRequest[] {

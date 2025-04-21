@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -13,17 +12,16 @@ import LanguageToggle from "../components/LanguageToggle";
 import { useToast } from "@/components/ui/use-toast";
 
 const AdminLogin: React.FC = () => {
-  const [phone, setPhone] = useState("");
-  const [area, setArea] = useState("");
-  
+  const [identifier, setIdentifier] = useState(""); // phone or id
+
   const navigate = useNavigate();
   const { login } = useAuth();
   const { t, language } = useLanguage();
   const { toast } = useToast();
-  
-  const englishText = "Welcome to Delivery Partner login. Please enter your phone number and area code to continue.";
-  const teluguText = "డెలివరీ పార్ట్నర్ లాగిన్‌కు స్వాగతం. కొనసాగించడానికి దయచేసి మీ ఫోన్ నంబర్ మరియు ప్రాంత కోడ్‌ను నమోదు చేయండి.";
-  
+
+  const englishText = "Welcome to Delivery Partner login. Please enter your registered mobile number or unique ID to continue.";
+  const teluguText = "డెలివరీ పార్ట్నర్ లాగిన్‌కు స్వాగతం. కొనసాగించడానికి దయచేసి మీ ఫోన్ నంబర్ లేదా ఐడి నమోదు చేయండి.";
+
   const { speak } = useTextToSpeech({
     text: language === "english" ? englishText : teluguText,
     language: language === "english" ? "en-IN" : "te-IN",
@@ -36,41 +34,34 @@ const AdminLogin: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!phone || phone.length < 10 || !area) {
+
+    if (!identifier || identifier.length < 3) {
       toast({
         title: t("Invalid Input", "చెల్లని ఇన్‌పుట్"),
-        description: t("Please enter a valid phone number and area code", "దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్ మరియు ప్రాంత కోడ్‌ను నమోదు చేయండి"),
+        description: t("Please enter a valid mobile number or unique ID", "దయచేసి ఫోన్ నంబర్ లేదా యూనిక్ ఐడి నమోదు చేయండి"),
         variant: "destructive",
       });
       return;
     }
-    
-    const user = login(phone);
+
+    const user = login(identifier);
     if (user) {
-      if (user.role === "admin" && user.area === area) {
+      if (user.role === "admin") {
         toast({
           title: t("Login Successful", "లాగిన్ విజయవంతమైంది"),
           description: t(`Welcome back, ${user.name}`, `తిరిగి స్వాగతం, ${user.name}`),
         });
         navigate("/admin-dashboard");
-      } else if (user.role !== "admin") {
+      } else {
         toast({
           title: t("Wrong Login Type", "తప్పు లాగిన్ రకం"),
           description: t("This account is not a Delivery Partner account", "ఈ ఖాతా డెలివరీ పార్ట్నర్ ఖాతా కాదు"),
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: t("Wrong Area Code", "తప్పు ప్రాంత కోడ్"),
-          description: t("The area code does not match our records", "ప్రాంత కోడ్ మా రికార్డులతో సరిపోలడం లేదు"),
-          variant: "destructive",
         });
       }
     } else {
       toast({
         title: t("Account Not Found", "ఖాతా కనుగొనబడలేదు"),
-        description: t("No Delivery Partner account found with this phone number", "ఈ ఫోన్ నంబర్‌తో డెలివరీ పార్ట్నర్ ఖాతా కనుగొనబడలేదు"),
+        description: t("No Delivery Partner account found with this mobile number or ID", "ఈ ఫోన్ నంబర్ లేదా ఐడి‌తో డెలివరీ పార్ట్నర్ ఖాతా కనుగొనబడలేదు"),
         variant: "destructive",
       });
     }
@@ -105,34 +96,20 @@ const AdminLogin: React.FC = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">{t("Phone Number", "ఫోన్ నంబర్")}</Label>
+              <Label htmlFor="id-or-phone">{t("Mobile Number or Unique ID", "ఫోన్ నంబర్ లేదా ఐడి")}</Label>
               <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder={t("Enter your phone number", "మీ ఫోన్ నంబర్‌ను నమోదు చేయండి")}
-                className="text-lg p-6"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="area">{t("Area Code", "ఏరియా కోడ్")}</Label>
-              <Input
-                id="area"
+                id="id-or-phone"
                 type="text"
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                placeholder={t("Enter your area code", "మీ ప్రాంత కోడ్‌ను నమోదు చేయండి")}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder={t("Enter phone number or ID", "ఫోన్ నంబర్ లేదా ఐడి నమోదు చేయండి")}
                 className="text-lg p-6"
               />
             </div>
-            
             <Button type="submit" className="w-full btn-large bg-secondary hover:bg-secondary/90">
               <LogIn className="mr-2" />
               {t("Login", "లాగిన్")}
             </Button>
-            
             <p className="text-center text-sm text-gray-600 mt-4">
               {t(
                 "Contact your supervisor if you don't have login credentials.", 
