@@ -6,7 +6,8 @@ const config: CapacitorConfig = {
   appName: 'seva-sahyog-bandhu',
   webDir: 'dist',
   server: {
-    url: 'https://eb1154e6-c6cf-493c-8c3b-cecc7633c974.lovableproject.com?forceHideBadge=true',
+    // On mobile, leave url as empty string. For hot-reload/dev, use your preview URL.
+    url: '',
     cleartext: true
   },
   plugins: {
@@ -24,3 +25,4 @@ const config: CapacitorConfig = {
 };
 
 export default config;
+
