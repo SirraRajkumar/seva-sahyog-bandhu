@@ -18,11 +18,9 @@ const PatientLogin: React.FC = () => {
   const [name, setName] = useState("");
   const [village, setVillage] = useState("");
   // REMOVE area from registration for consistency with login removal
-  // If registration still needs "area" for your data model, you can keep it, but based on the request it's to be removed:
-  // const [area, setArea] = useState("");
 
   const navigate = useNavigate();
-  const { login, register } = useAuth();
+  const { login, register, isAuthenticated } = useAuth();
   const { t, language } = useLanguage();
   const { toast } = useToast();
 
@@ -40,6 +38,14 @@ const PatientLogin: React.FC = () => {
     autoSpeak: true,
   });
 
+  // Check if user is already logged in, redirect if yes
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log("User already authenticated, redirecting to dashboard");
+      navigate("/patient-dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+
   useEffect(() => {
     document.title = isRegistering 
       ? "ASHASEVA - Patient Registration" 
@@ -48,6 +54,7 @@ const PatientLogin: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting form. Is registering:", isRegistering);
 
     if (!isRegistering) {
       if (!identifier || identifier.length < 3) {
@@ -58,7 +65,10 @@ const PatientLogin: React.FC = () => {
         });
         return;
       }
+      
+      console.log("Attempting to login with identifier:", identifier);
       const user = login(identifier);
+      
       if (user) {
         if (user.role === "patient") {
           toast({
@@ -73,6 +83,11 @@ const PatientLogin: React.FC = () => {
           });
         }
       } else {
+        console.log("User not found. Switching to registration mode");
+        toast({
+          title: t("User Not Found", "వినియోగదారు కనుగొనబడలేదు"),
+          description: t("Please register as a new user", "దయచేసి కొత్త వినియోగదారుగా నమోదు చేయండి"),
+        });
         setIsRegistering(true);
       }
     } else {
@@ -92,7 +107,10 @@ const PatientLogin: React.FC = () => {
         });
         return;
       }
+      
+      console.log("Registering new user with data:", { name, phone: identifier, village });
       const newUser = register({ name, phone: identifier, village, area: "" });
+      
       toast({
         title: t("Registration Successful", "నమోదు విజయవంతమైంది"),
         description: t(

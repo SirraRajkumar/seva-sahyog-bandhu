@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+
+import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { User } from "../types";
 import { findUserByIdentifier, saveUser } from "../data/mockData";
 
@@ -23,11 +24,27 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  // Load user from localStorage on initial load
+  useEffect(() => {
+    const storedUser = localStorage.getItem("currentUser");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+        console.log("User loaded from localStorage:", user);
+      } catch (error) {
+        console.error("Error parsing stored user:", error);
+        localStorage.removeItem("currentUser");
+      }
+    }
+  }, []);
+
   const login = (identifier: string): User | null => {
     const user = findUserByIdentifier(identifier);
     if (user) {
       setCurrentUser(user);
       localStorage.setItem("currentUser", JSON.stringify(user));
+      console.log("User logged in:", user);
       return user;
     }
     return null;
@@ -37,25 +54,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const newUser = saveUser(userData);
     setCurrentUser(newUser);
     localStorage.setItem("currentUser", JSON.stringify(newUser));
+    console.log("New user registered:", newUser);
     return newUser;
   };
 
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem("currentUser");
+    console.log("User logged out");
   };
-
-  // Check if user was previously logged in
-  React.useEffect(() => {
-    const storedUser = localStorage.getItem("currentUser");
-    if (storedUser) {
-      try {
-        setCurrentUser(JSON.parse(storedUser));
-      } catch (error) {
-        localStorage.removeItem("currentUser");
-      }
-    }
-  }, []);
 
   const value = {
     currentUser,
