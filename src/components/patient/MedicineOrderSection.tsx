@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// Removed textarea import (no longer needed)
 import { Package, MapPin, Plus, FileImage } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/components/ui/use-toast";
@@ -46,15 +45,13 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
     setIsSubmitting(true);
 
     // For demo, we just mock uploading and use a local URL
-    let imageUrl = "";
     try {
-      imageUrl = URL.createObjectURL(prescriptionImage);
       if (currentUser) {
         const order = saveMedicineOrder({
           userId: currentUser.id,
           address: address,
           postalCode: postalCode,
-          prescriptionImageUrl: imageUrl,
+          description: "", // Use empty description instead of prescriptionImageUrl
           status: "pending"
         });
         toast({
