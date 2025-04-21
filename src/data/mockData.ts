@@ -6,7 +6,6 @@ export const users: User[] = [
     name: "Rajesh Kumar",
     phone: "9876543210",
     village: "Narayanpur",
-    healthCardNumber: "NHIS123456",
     area: "AP001",
     role: "patient"
   },
@@ -15,7 +14,6 @@ export const users: User[] = [
     name: "Sita Devi",
     phone: "9876543211",
     village: "Gollapudi",
-    healthCardNumber: "NHIS123457",
     area: "AP001",
     role: "patient"
   },
@@ -24,7 +22,6 @@ export const users: User[] = [
     name: "Mohan Rao",
     phone: "9876543212",
     village: "Jangareddygudem",
-    healthCardNumber: "NHIS123458",
     area: "AP002",
     role: "patient"
   },
@@ -33,7 +30,6 @@ export const users: User[] = [
     name: "Lakshmi Reddy",
     phone: "9876543213",
     village: "Vijayawada",
-    healthCardNumber: "",
     area: "AP001",
     role: "admin"
   },
@@ -42,7 +38,6 @@ export const users: User[] = [
     name: "Priya Sharma",
     phone: "9876543214",
     village: "Rajahmundry",
-    healthCardNumber: "",
     area: "AP002",
     role: "admin"
   },
@@ -51,7 +46,6 @@ export const users: User[] = [
     name: "Dr. Suresh Kumar",
     phone: "9876543215",
     village: "Vijayawada",
-    healthCardNumber: "",
     area: "AP001",
     role: "doctor"
   }
@@ -89,7 +83,8 @@ export const medicineOrders: MedicineOrder[] = [
     id: "o1",
     userId: "p1",
     address: "123 Main Street, Narayanpur, AP001",
-    prescription: "Paracetamol 500mg - 10 tablets, Vitamin C 500mg - 30 tablets",
+    postalCode: "500001",
+    prescriptionImageUrl: "",
     date: "2025-04-20",
     status: "pending"
   },
@@ -97,7 +92,8 @@ export const medicineOrders: MedicineOrder[] = [
     id: "o2",
     userId: "p2",
     address: "45 Temple Road, Gollapudi, AP001",
-    prescription: "Amoxicillin 250mg - 15 tablets, Cough syrup 100ml",
+    postalCode: "500002",
+    prescriptionImageUrl: "",
     date: "2025-04-21",
     status: "delivering"
   },
@@ -105,7 +101,8 @@ export const medicineOrders: MedicineOrder[] = [
     id: "o3",
     userId: "p3",
     address: "789 Market Street, Jangareddygudem, AP002",
-    prescription: "Ibuprofen 400mg - 20 tablets, Montelukast 10mg - 10 tablets",
+    postalCode: "500003",
+    prescriptionImageUrl: "",
     date: "2025-04-19",
     status: "delivered"
   }

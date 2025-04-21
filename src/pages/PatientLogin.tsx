@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -18,7 +17,6 @@ const PatientLogin: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [name, setName] = useState("");
   const [village, setVillage] = useState("");
-  const [healthCardNumber, setHealthCardNumber] = useState("");
   const [area, setArea] = useState("");
   
   const navigate = useNavigate();
@@ -81,7 +79,7 @@ const PatientLogin: React.FC = () => {
       }
     } else {
       // Registration flow
-      if (!name || !phone || !village || !healthCardNumber || !area) {
+      if (!name || !phone || !village || !area) {
         toast({
           title: t("Incomplete Form", "అసంపూర్ణ ఫారమ్"),
           description: t("Please fill out all fields", "దయచేసి అన్ని ఫీల్డ్‌లను పూరించండి"),
@@ -99,7 +97,7 @@ const PatientLogin: React.FC = () => {
         return;
       }
       
-      const newUser = register({ name, phone, village, healthCardNumber, area });
+      const newUser = register({ name, phone, village, area });
       toast({
         title: t("Registration Successful", "నమోదు విజయవంతమైంది"),
         description: t(`Welcome, ${newUser.name}`, `స్వాగతం, ${newUser.name}`),
@@ -176,18 +174,6 @@ const PatientLogin: React.FC = () => {
                     value={village}
                     onChange={(e) => setVillage(e.target.value)}
                     placeholder={t("Enter your village name", "మీ గ్రామం పేరును నమోదు చేయండి")}
-                    className="text-lg p-6"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="healthCard">{t("Health Card Number", "ఆరోగ్య కార్డ్ నంబర్")}</Label>
-                  <Input
-                    id="healthCard"
-                    type="text"
-                    value={healthCardNumber}
-                    onChange={(e) => setHealthCardNumber(e.target.value)}
-                    placeholder={t("Enter your health card number", "మీ ఆరోగ్య కార్డ్ నంబర్‌ను నమోదు చేయండి")}
                     className="text-lg p-6"
                   />
                 </div>

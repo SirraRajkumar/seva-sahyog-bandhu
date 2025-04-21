@@ -4,7 +4,7 @@ export interface User {
   name: string;
   phone: string;
   village: string;
-  healthCardNumber: string;
+  // Removed healthCardNumber
   area: string;
   role: "patient" | "admin" | "doctor";
   requests?: HealthRequest[];
@@ -23,7 +23,8 @@ export interface MedicineOrder {
   id: string;
   userId: string;
   address: string;
-  prescription: string;
+  postalCode: string;
+  prescriptionImageUrl: string; // Use image URL instead of prescription text
   date: string;
   status: "pending" | "confirmed" | "delivering" | "delivered";
 }

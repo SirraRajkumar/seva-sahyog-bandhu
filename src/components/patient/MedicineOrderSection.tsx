@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Package, MapPin, Plus } from "lucide-react";
+// Removed textarea import (no longer needed)
+import { Package, MapPin, Plus, FileImage } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "../../context/AuthContext";
@@ -21,33 +21,42 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
   const { currentUser } = useAuth();
   
   const [address, setAddress] = useState<string>("");
-  const [prescriptionDetails, setPrescriptionDetails] = useState<string>("");
+  const [postalCode, setPostalCode] = useState<string>("");
+  const [prescriptionImage, setPrescriptionImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPrescriptionImage(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!address || !prescriptionDetails) {
+    if (!address || !postalCode || !prescriptionImage) {
       toast({
         title: t("Missing Information", "సమాచారం లేదు"),
-        description: t("Please fill all required fields", "దయచేసి అవసరమైన అన్ని ఫీల్డ్‌లను పూరించండి"),
+        description: t("Please fill all required fields and upload prescription image", "దయచేసి అవసరమైన అన్ని ఫీల్డ్‌లను పూరించండి మరియు ప్రిస్క్రిప్షన్ ఇమేజ్‌ని అప్‌లోడ్ చేయండి"),
         variant: "destructive",
       });
       return;
     }
     
     setIsSubmitting(true);
-    
+
+    // For demo, we just mock uploading and use a local URL
+    let imageUrl = "";
     try {
-      // Save order to our mock database
+      imageUrl = URL.createObjectURL(prescriptionImage);
       if (currentUser) {
         const order = saveMedicineOrder({
           userId: currentUser.id,
           address: address,
-          prescription: prescriptionDetails,
+          postalCode: postalCode,
+          prescriptionImageUrl: imageUrl,
           status: "pending"
         });
-        
         toast({
           title: t("Order Placed Successfully", "ఆర్డర్ విజయవంతంగా చేయబడింది"),
           description: t(
@@ -55,12 +64,9 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
             `మీ మందుల ఆర్డర్ #${order.id} స్థాపించబడింది మరియు నిర్ధారణ కోసం వేచి ఉంది`
           ),
         });
-        
-        // Reset form
         setAddress("");
-        setPrescriptionDetails("");
-        
-        // Notify parent component
+        setPostalCode("");
+        setPrescriptionImage(null);
         onOrderPlaced();
       }
     } catch (error) {
@@ -85,39 +91,53 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="address">
-              {t("Delivery Address", "డెలివరీ చిరునామా")}
+            <Label htmlFor="postalCode">
+              {t("Postal Code", "పోస్టల్ కోడ్")}
             </Label>
             <div className="flex items-center">
               <MapPin className="mr-2 h-4 w-4 text-gray-500" />
               <Input
-                id="address"
-                placeholder={t(
-                  "Enter your complete address",
-                  "మీ పూర్తి చిరునామాను నమోదు చేయండి"
-                )}
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                id="postalCode"
+                placeholder={t("Enter your postal code", "మీ పోస్టల్ కోడ్ నమోదు చేయండి")}
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
               />
             </div>
           </div>
-          
           <div className="space-y-2">
-            <Label htmlFor="prescription">
-              {t("Prescription Details", "ప్రిస్క్రిప్షన్ వివరాలు")}
+            <Label htmlFor="address">
+              {t("Delivery Address", "డెలివరీ చిరునామా")}
             </Label>
-            <Textarea
-              id="prescription"
-              placeholder={t(
-                "List medications as prescribed by your doctor",
-                "మీ వైద్యుడు సూచించిన మందులను జాబితా చేయండి"
-              )}
-              value={prescriptionDetails}
-              onChange={(e) => setPrescriptionDetails(e.target.value)}
-              rows={4}
+            <Input
+              id="address"
+              placeholder={t("Enter your complete address", "మీ పూర్తి చిరునామాను నమోదు చేయండి")}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
             />
           </div>
-          
+          <div className="space-y-2">
+            <Label htmlFor="prescriptionImage">
+              {t("Upload Doctor Prescription", "డాక్టర్ ప్రిస్క్రిప్షన్‌ను అప్‌లోడ్ చేయండి")}
+            </Label>
+            <div className="flex items-center gap-2">
+              <FileImage className="h-5 w-5 text-gray-500" />
+              <Input
+                id="prescriptionImage"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+            </div>
+            {prescriptionImage && (
+              <div className="mt-2">
+                <img
+                  src={URL.createObjectURL(prescriptionImage)}
+                  alt="Prescription Preview"
+                  className="max-h-32 rounded border"
+                />
+              </div>
+            )}
+          </div>
           <Button 
             type="submit" 
             className="w-full" 

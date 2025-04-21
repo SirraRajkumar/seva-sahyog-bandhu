@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
@@ -19,16 +18,13 @@ const ProfileCompletion: React.FC = () => {
   const [formData, setFormData] = React.useState({
     name: currentUser?.name || "",
     village: currentUser?.village || "",
-    healthCardNumber: currentUser?.healthCardNumber || "",
     area: currentUser?.area || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!currentUser?.phone) return;
-    
-    if (!formData.name || !formData.village || !formData.healthCardNumber || !formData.area) {
+    if (!formData.name || !formData.village || !formData.area) {
       toast({
         title: t("Missing Information", "సమాచారం లేదు"),
         description: t("Please fill in all fields", "దయచేసి అన్ని ఫీల్డ్‌లను పూరించండి"),
@@ -36,12 +32,10 @@ const ProfileCompletion: React.FC = () => {
       });
       return;
     }
-
-    const updatedUser = register({
+    register({
       ...formData,
       phone: currentUser.phone,
     });
-
     toast({
       title: t("Profile Updated", "ప్రొఫైల్ నవీకరించబడింది"),
       description: t("Your profile has been completed", "మీ ప్రొఫైల్ పూర్తయింది"),
@@ -67,7 +61,6 @@ const ProfileCompletion: React.FC = () => {
                 placeholder={t("Enter your full name", "మీ పూర్తి పేరును నమోదు చేయండి")}
               />
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="village">{t("Village", "గ్రామం")}</Label>
               <Input
@@ -77,19 +70,6 @@ const ProfileCompletion: React.FC = () => {
                 placeholder={t("Enter your village name", "మీ గ్రామం పేరును నమోదు చేయండి")}
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="healthCard">
-                {t("Health Card Number", "ఆరోగ్య కార్డ్ నంబర్")}
-              </Label>
-              <Input
-                id="healthCard"
-                value={formData.healthCardNumber}
-                onChange={(e) => setFormData({ ...formData, healthCardNumber: e.target.value })}
-                placeholder={t("Enter your health card number", "మీ ఆరోగ్య కార్డ్ నంబర్‌ను నమోదు చేయండి")}
-              />
-            </div>
-            
             <div className="space-y-2">
               <Label htmlFor="area">{t("Area Code", "ఏరియా కోడ్")}</Label>
               <Input
