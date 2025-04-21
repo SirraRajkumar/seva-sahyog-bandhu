@@ -19,6 +19,8 @@ import {
   findSymptomById,
   updateRequestStatus,
   healthRequests,
+  saveMedicineOrder,
+  getPatientAddressAndPostalCode,
 } from "../../data/mockData";
 import { HealthRequest } from "../../types";
 
@@ -28,6 +30,8 @@ const HealthRequests: React.FC = () => {
   const { toast } = useToast();
   const [filter, setFilter] = useState<string>("all");
   const [requests, setRequests] = useState<HealthRequest[]>([]);
+  // New: Track medicine input per request
+  const [medicines, setMedicines] = useState<{ [rid: string]: string }>({});
 
   React.useEffect(() => {
     if (currentUser) {
@@ -44,9 +48,40 @@ const HealthRequests: React.FC = () => {
         description: t("Request status has been updated.", "అభ్యర్థన స్థితి నవీకరించబడింది."),
       });
 
-      // Update local state
       setRequests(requests.map(req => req.id === requestId ? {...req, status} : req));
     }
+  };
+
+  // When doctor submits medicine for symptom, create order for patient
+  const handleSubmitMedicine = (request: HealthRequest) => {
+    if (!medicines[request.id] || !currentUser) {
+      toast({
+        title: t("Provide medicine", "మందులు ఇవ్వండి"),
+        description: t("Please enter medicines to give to the patient.", "దయచేసి రోగికి ఇవ్వాల్సిన మందులు నమోదు చేయండి."),
+        variant: "destructive",
+      });
+      return;
+    }
+    const user = findUserById(request.userId);
+    if (!user) return;
+    const { address, postalCode } = getPatientAddressAndPostalCode(user.id);
+
+    saveMedicineOrder({
+      userId: user.id,
+      address,
+      postalCode,
+      description: medicines[request.id],
+      status: "pending",
+    });
+
+    toast({
+      title: t("Medicines sent", "మందులు పంపబడినవి"),
+      description: t("Medicines have been prescribed and an order placed for the patient.", "మందులు సూచించబడి, ఆర్డర్ రోగికి చేయబడింది."),
+    });
+
+    // Optionally, mark request as reviewed
+    handleStatusChange(request.id, "reviewed");
+    setMedicines({ ...medicines, [request.id]: "" });
   };
 
   const filteredRequests = filter === "all" 
@@ -121,8 +156,32 @@ const HealthRequests: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="mt-4 flex justify-end">
-                  <Select onValueChange={(value) => handleStatusChange(request.id, value as "pending" | "reviewed" | "urgent" | "completed")}>
+                {/* Doctor inputs recommended medicines */}
+                <div className="mt-4 flex flex-col md:flex-row md:items-center gap-3">
+                  <input
+                    type="text"
+                    className="border rounded px-3 py-2 flex-1"
+                    placeholder={t("Enter medicines as comma separated", "మందులను కామాతో వేరు చేసి నమోదు చేయండి")}
+                    value={medicines[request.id] || ""}
+                    onChange={e =>
+                      setMedicines({ ...medicines, [request.id]: e.target.value })
+                    }
+                  />
+                  <Button
+                    className="mt-2 md:mt-0"
+                    onClick={() => handleSubmitMedicine(request)}
+                  >
+                    {t("Send Medicines", "మందులు పంపించండి")}
+                  </Button>
+                  <div className="flex-1" />
+                  <Select
+                    onValueChange={value =>
+                      handleStatusChange(
+                        request.id,
+                        value as "pending" | "reviewed" | "urgent" | "completed"
+                      )
+                    }
+                  >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder={t("Update Status", "స్థితిని నవీకరించండి")} />
                     </SelectTrigger>

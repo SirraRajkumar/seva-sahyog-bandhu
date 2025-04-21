@@ -84,7 +84,7 @@ export const medicineOrders: MedicineOrder[] = [
     userId: "p1",
     address: "123 Main Street, Narayanpur, AP001",
     postalCode: "500001",
-    prescriptionImageUrl: "",
+    description: "",
     date: "2025-04-20",
     status: "pending"
   },
@@ -93,7 +93,7 @@ export const medicineOrders: MedicineOrder[] = [
     userId: "p2",
     address: "45 Temple Road, Gollapudi, AP001",
     postalCode: "500002",
-    prescriptionImageUrl: "",
+    description: "",
     date: "2025-04-21",
     status: "delivering"
   },
@@ -102,7 +102,7 @@ export const medicineOrders: MedicineOrder[] = [
     userId: "p3",
     address: "789 Market Street, Jangareddygudem, AP002",
     postalCode: "500003",
-    prescriptionImageUrl: "",
+    description: "",
     date: "2025-04-19",
     status: "delivered"
   }
@@ -234,6 +234,7 @@ export function findOrdersByArea(area: string): MedicineOrder[] {
   return medicineOrders.filter(order => userIds.includes(order.userId));
 }
 
+// Add order with description (doctor-provided medicines)
 export function saveMedicineOrder(order: Omit<MedicineOrder, "id" | "date">): MedicineOrder {
   const newOrder = {
     ...order,
@@ -243,6 +244,17 @@ export function saveMedicineOrder(order: Omit<MedicineOrder, "id" | "date">): Me
   
   medicineOrders.push(newOrder);
   return newOrder;
+}
+
+// Add function to get patient's address and postalCode by user id
+export function getPatientAddressAndPostalCode(userId: string): { address: string, postalCode: string } {
+  const user = users.find(u => u.id === userId);
+  if (!user) return { address: "", postalCode: "" };
+  // For demo, default basic address fields
+  return {
+    address: `${user.village}, ${user.area}`,
+    postalCode: "500000"
+  };
 }
 
 export function updateOrderStatus(orderId: string, newStatus: "pending" | "confirmed" | "delivering" | "delivered"): MedicineOrder | undefined {

@@ -24,7 +24,7 @@ export interface MedicineOrder {
   userId: string;
   address: string;
   postalCode: string;
-  prescriptionImageUrl: string; // Use image URL instead of prescription text
+  description: string; // Medicinal description provided by doctor
   date: string;
   status: "pending" | "confirmed" | "delivering" | "delivered";
 }
