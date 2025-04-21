@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Truck, Check } from "lucide-react";
+import { Package, Truck, Check, MapPin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "../../context/AuthContext";
 import { findOrdersByUserId } from "../../data/mockData";
@@ -68,6 +68,18 @@ const OrderHistory: React.FC = () => {
               </p>
               
               <div className="flex items-center text-sm text-gray-600">
+                <MapPin className="h-4 w-4 mr-1 text-primary" />
+                <div>
+                  <p>{order.address}</p>
+                  {order.postalCode && (
+                    <p className="text-xs font-medium mt-0.5">
+                      {t("Postal Code: ", "పోస్టల్ కోడ్: ")}{order.postalCode}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center text-sm text-gray-600 mt-1">
                 {order.status === "delivering" ? (
                   <Truck className="h-4 w-4 mr-1 text-primary" />
                 ) : order.status === "delivered" ? (
@@ -75,7 +87,9 @@ const OrderHistory: React.FC = () => {
                 ) : (
                   <Package className="h-4 w-4 mr-1" />
                 )}
-                <p>{order.address}</p>
+                <p>{t(order.status, order.status === "pending" ? "పెండింగ్" : 
+                   order.status === "confirmed" ? "నిర్ధారించబడింది" :
+                   order.status === "delivering" ? "డెలివరీ చేస్తోంది" : "డెలివరీ అయినది")}</p>
               </div>
             </div>
           ))}

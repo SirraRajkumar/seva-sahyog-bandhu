@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,6 +80,23 @@ const DeliveryOrdersList: React.FC<DeliveryOrdersListProps> = ({ status, current
     return user ? user.name : "Unknown Patient";
   };
   
+  const handleNavigate = (order: any) => {
+    // Create a complete address by combining postalCode and address
+    const fullAddress = `${order.postalCode || ''}, ${order.address}`;
+    const encodedAddress = encodeURIComponent(fullAddress);
+    
+    // Use Google Maps with the combined address for better accuracy
+    window.open(`https://maps.google.com?q=${encodedAddress}`, '_blank');
+    
+    toast({
+      title: t("Navigation Started", "నావిగేషన్ ప్రారంభించబడింది"),
+      description: t(
+        "Opening maps for navigation to patient's location",
+        "రోగి స్థానానికి నావిగేషన్ కోసం మ్యాప్‌లు తెరుస్తోంది"
+      )
+    });
+  };
+  
   if (orders.length === 0) {
     return (
       <Card>
@@ -134,6 +150,11 @@ const DeliveryOrdersList: React.FC<DeliveryOrdersListProps> = ({ status, current
               <MapPin className="h-4 w-4 mt-1 text-gray-500" />
               <div>
                 <p className="break-words">{order.address}</p>
+                {order.postalCode && (
+                  <p className="text-sm font-medium mt-1">
+                    {t("Postal Code: ", "పోస్టల్ కోడ్: ")}{order.postalCode}
+                  </p>
+                )}
                 <p className="text-sm text-gray-500">{t("Delivery Address", "డెలివరీ చిరునామా")}</p>
               </div>
             </div>
@@ -141,7 +162,7 @@ const DeliveryOrdersList: React.FC<DeliveryOrdersListProps> = ({ status, current
             <div className="flex items-start gap-2">
               <Package className="h-4 w-4 mt-1 text-gray-500" />
               <div>
-                <p className="break-words">{order.prescription}</p>
+                <p className="break-words">{order.prescription || order.description}</p>
                 <p className="text-sm text-gray-500">{t("Medicines", "మందులు")}</p>
               </div>
             </div>
@@ -150,7 +171,7 @@ const DeliveryOrdersList: React.FC<DeliveryOrdersListProps> = ({ status, current
               <Button 
                 variant="outline" 
                 className="w-full mb-2" 
-                onClick={() => window.open(`https://maps.google.com?q=${encodeURIComponent(order.address)}`, '_blank')}
+                onClick={() => handleNavigate(order)}
               >
                 <Navigation className="mr-2 h-4 w-4" />
                 {t("Navigate", "నావిగేట్ చేయండి")}

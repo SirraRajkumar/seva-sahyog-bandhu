@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,7 +49,7 @@ const MedicineOrderSection: React.FC<MedicineOrderProps> = ({ onOrderPlaced }) =
 
     setIsSubmitting(true);
 
-    // Save only the description text (doctor can later update), not the image
+    // Save order with postal code properly included
     try {
       if (currentUser) {
         const order = saveMedicineOrder({
